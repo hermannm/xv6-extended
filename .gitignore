@@ -3,11 +3,14 @@ obj/
 *.o
 *.d
 *.out
+*.out.*
 *.asm
 *.sym
 *.img
 *.log
+*.ans
 _*
+.gdbinit
 lib/kernel/kernel
 lib/user/initcode
 lib/user/usys.S
