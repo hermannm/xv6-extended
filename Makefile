@@ -40,13 +40,14 @@ USER_LIB := \
 
 .PHONY: clean
 
-HELLO__OBJS := \
-	obj/hello-world/main.o \
-	obj/hello-world/greetings.o
+HELLO_OBJS := \
+	obj/hello/main.o \
+	obj/hello/greetings.o
 
-bin/hello: ${HELLO_OBJS}
-	mkdir -p bin
-	$(CC) $(CFLAGS) -o $@ $^
+lib/user/_hello: ${HELLO_OBJS} ${USER_LIB}
+	$(LD) $(LDFLAGS) -T lib/user/user.ld -o $@ $^
+	$(OBJDUMP) -S $@ > lib/user/hello.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > lib/user/hello.sym
 
 PS_OBJS := \
 	obj/ps/main.o \

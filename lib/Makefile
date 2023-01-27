@@ -101,6 +101,15 @@ _%: %.o $(ULIB)
 	$(OBJDUMP) -S $@ > $*.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
+HELLO_OBJS := \
+	../obj/hello/main.o \
+	../obj/hello/greetings.o
+
+user/_hello: ${HELLO_OBJS} $(ULIB)
+	$(LD) $(LDFLAGS) -T $U/user.ld -o $@ $^
+	$(OBJDUMP) -S $@ > user/hello.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > user/hello.sym
+
 PS_OBJS := \
 	../obj/ps/main.o \
 	../obj/ps/process_list.o \
@@ -149,7 +158,8 @@ UPROGS=\
 	$U/_grind\
 	$U/_wc\
 	$U/_zombie\
-	$U/_ps
+	$U/_ps\
+	$U/_hello
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
