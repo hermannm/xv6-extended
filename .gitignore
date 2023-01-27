@@ -1,0 +1,16 @@
+bin/
+obj/
+*.o
+*.d
+*.out
+*.asm
+*.sym
+*.img
+*.log
+_*
+lib/kernel/kernel
+lib/user/initcode
+lib/user/usys.S
+lib/mkfs/mkfs
+__pycache__
+.vscode
