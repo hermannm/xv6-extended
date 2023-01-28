@@ -9,6 +9,7 @@ obj/
 *.img
 *.log
 *.ans
+*.tar.gz
 _*
 .gdbinit
 lib/kernel/kernel
