@@ -16,7 +16,7 @@ uint64 sys_getprocs(void)
     pagetable_t calling_proc_pagetable = calling_proc->pagetable;
 
     int procs_added;
-    for (procs_added = 0; procs_added < args.offset + args.procs_to_get; procs_added++) {
+    for (procs_added = 0; procs_added < args.procs_to_get; procs_added++) {
         int proc_index = args.offset + procs_added;
         if (proc_index == NPROC) {
             break;
