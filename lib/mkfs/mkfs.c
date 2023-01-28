@@ -6,10 +6,10 @@
 #include <unistd.h>
 
 #define stat xv6_stat // avoid clash with host struct stat
-#include "kernel/fs.h"
-#include "kernel/param.h"
-#include "kernel/stat.h"
-#include "kernel/types.h"
+#include "../kernel/fs.h"
+#include "../kernel/param.h"
+#include "../kernel/stat.h"
+#include "../kernel/types.h"
 
 #ifndef static_assert
 #define static_assert(a, b)                                                                        \
@@ -21,6 +21,11 @@
 #endif
 
 #define NINODES 200
+
+#define LIB_DIR_PATH "lib/"
+#define LIB_DIR_PATH_LEN 4
+#define USER_LIB_DIR_PATH "lib/user/"
+#define USER_LIB_DIR_PATH_LEN 9
 
 // Disk layout:
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
@@ -131,12 +136,15 @@ int main(int argc, char* argv[])
     iappend(rootino, &de, sizeof(de));
 
     for (i = 2; i < argc; i++) {
-        // get rid of "user/"
+        // get rid of LIB_DIR_PATH and USER_LIB_DIR_PATH
         char* shortname;
-        if (strncmp(argv[i], "user/", 5) == 0)
-            shortname = argv[i] + 5;
-        else
+        if (strncmp(argv[i], USER_LIB_DIR_PATH, USER_LIB_DIR_PATH_LEN) == 0) {
+            shortname = argv[i] + USER_LIB_DIR_PATH_LEN;
+        } else if (strncmp(argv[i], LIB_DIR_PATH, LIB_DIR_PATH_LEN) == 0) {
+            shortname = argv[i] + LIB_DIR_PATH_LEN;
+        } else {
             shortname = argv[i];
+        }
 
         assert(index(shortname, '/') == 0);
 

@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "types.h"
 
-#include "../src/ps/sys_getprocs.h"
+#include "../../src/ps/sys_getprocs.h"
 
 // Fetch the uint64 at addr from the current process.
 int fetchaddr(uint64 addr, uint64* ip)
