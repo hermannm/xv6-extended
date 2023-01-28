@@ -2,65 +2,73 @@ LIB := lib
 KERNEL_LIB := $(LIB)/kernel
 USER_LIB := $(LIB)/user
 
+OBJ := obj
+KERNEL_OBJ := $(OBJ)/kernel
+USER_OBJ := $(OBJ)/user
+
+BIN := bin
+KERNEL_BIN := $(BIN)/kernel
+USER_BIN := $(BIN)/user
+
 LAB := l1
 
 KERNEL_OBJS := \
-  $(KERNEL_LIB)/entry.o \
-  $(KERNEL_LIB)/start.o \
-  $(KERNEL_LIB)/console.o \
-  $(KERNEL_LIB)/printf.o \
-  $(KERNEL_LIB)/uart.o \
-  $(KERNEL_LIB)/kalloc.o \
-  $(KERNEL_LIB)/spinlock.o \
-  $(KERNEL_LIB)/string.o \
-  $(KERNEL_LIB)/main.o \
-  $(KERNEL_LIB)/vm.o \
-  $(KERNEL_LIB)/proc.o \
-  $(KERNEL_LIB)/swtch.o \
-  $(KERNEL_LIB)/trampoline.o \
-  $(KERNEL_LIB)/trap.o \
-  $(KERNEL_LIB)/syscall.o \
-  $(KERNEL_LIB)/sysproc.o \
-  $(KERNEL_LIB)/bio.o \
-  $(KERNEL_LIB)/fs.o \
-  $(KERNEL_LIB)/log.o \
-  $(KERNEL_LIB)/sleeplock.o \
-  $(KERNEL_LIB)/file.o \
-  $(KERNEL_LIB)/pipe.o \
-  $(KERNEL_LIB)/exec.o \
-  $(KERNEL_LIB)/sysfile.o \
-  $(KERNEL_LIB)/kernelvec.o \
-  $(KERNEL_LIB)/plic.o \
-  $(KERNEL_LIB)/virtio_disk.o \
-  obj/ps/sys_getprocs.o
+  $(KERNEL_OBJ)/entry.o \
+  $(KERNEL_OBJ)/start.o \
+  $(KERNEL_OBJ)/console.o \
+  $(KERNEL_OBJ)/printf.o \
+  $(KERNEL_OBJ)/uart.o \
+  $(KERNEL_OBJ)/kalloc.o \
+  $(KERNEL_OBJ)/spinlock.o \
+  $(KERNEL_OBJ)/string.o \
+  $(KERNEL_OBJ)/main.o \
+  $(KERNEL_OBJ)/vm.o \
+  $(KERNEL_OBJ)/proc.o \
+  $(KERNEL_OBJ)/swtch.o \
+  $(KERNEL_OBJ)/trampoline.o \
+  $(KERNEL_OBJ)/trap.o \
+  $(KERNEL_OBJ)/syscall.o \
+  $(KERNEL_OBJ)/sysproc.o \
+  $(KERNEL_OBJ)/bio.o \
+  $(KERNEL_OBJ)/fs.o \
+  $(KERNEL_OBJ)/log.o \
+  $(KERNEL_OBJ)/sleeplock.o \
+  $(KERNEL_OBJ)/file.o \
+  $(KERNEL_OBJ)/pipe.o \
+  $(KERNEL_OBJ)/exec.o \
+  $(KERNEL_OBJ)/sysfile.o \
+  $(KERNEL_OBJ)/kernelvec.o \
+  $(KERNEL_OBJ)/plic.o \
+  $(KERNEL_OBJ)/virtio_disk.o \
+  $(OBJ)/ps/sys_getprocs.o
 
 USER_OBJS := \
-	$(USER_LIB)/ulib.o \
-	$(USER_LIB)/usys.o \
-	$(USER_LIB)/printf.o \
-	$(USER_LIB)/umalloc.o
+	$(USER_OBJ)/ulib.o \
+	$(USER_OBJ)/usys.o \
+	$(USER_OBJ)/printf.o \
+	$(USER_OBJ)/umalloc.o
 
 USER_PROGRAMS := \
-	$(USER_LIB)/_cat \
-	$(USER_LIB)/_echo \
-	$(USER_LIB)/_forktest \
-	$(USER_LIB)/_grep \
-	$(USER_LIB)/_init \
-	$(USER_LIB)/_kill \
-	$(USER_LIB)/_ln \
-	$(USER_LIB)/_ls \
-	$(USER_LIB)/_mkdir \
-	$(USER_LIB)/_rm \
-	$(USER_LIB)/_sh \
-	$(USER_LIB)/_stressfs \
-	$(USER_LIB)/_usertests \
-	$(USER_LIB)/_grind \
-	$(USER_LIB)/_wc \
-	$(USER_LIB)/_zombie \
-	$(USER_LIB)/_hello \
-	$(USER_LIB)/_ps
+	$(USER_BIN)/_cat \
+	$(USER_BIN)/_echo \
+	$(USER_BIN)/_forktest \
+	$(USER_BIN)/_grep \
+	$(USER_BIN)/_init \
+	$(USER_BIN)/_kill \
+	$(USER_BIN)/_ln \
+	$(USER_BIN)/_ls \
+	$(USER_BIN)/_mkdir \
+	$(USER_BIN)/_rm \
+	$(USER_BIN)/_sh \
+	$(USER_BIN)/_stressfs \
+	$(USER_BIN)/_usertests \
+	$(USER_BIN)/_grind \
+	$(USER_BIN)/_wc \
+	$(USER_BIN)/_zombie \
+	$(USER_BIN)/_hello \
+	$(USER_BIN)/_ps
 
-.DEFAULT_GOAL := $(KERNEL_LIB)/kernel
+.DEFAULT_GOAL := $(KERNEL_BIN)/kernel
 
 .PHONY: clean qemu test print-gdbport prepare-handin internal-prepare-handout
 
@@ -108,62 +116,84 @@ LDFLAGS := -z max-page-size=4096
 
 -include $(KERNEL_LIB)/*.d $(USER_LIB)/*.d
 
-_%: %.o $(USER_OBJS)
+$(USER_BIN)/_%: $(USER_OBJ)/%.o $(USER_OBJS)
+	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
-	$(OBJDUMP) -S $@ > $*.asm
-	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
+	$(OBJDUMP) -S $@ > $(USER_BIN)/$*.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/$*.sym
 
 HELLO_OBJS := \
 	obj/hello/main.o \
 	obj/hello/greetings.o
 
-$(USER_LIB)/_hello: $(HELLO_OBJS) $(USER_OBJS)
+$(USER_BIN)/_hello: $(HELLO_OBJS) $(USER_OBJS)
+	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
-	$(OBJDUMP) -S $@ > $(USER_LIB)/hello.asm
-	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_LIB)/hello.sym
+	$(OBJDUMP) -S $@ > $(USER_BIN)/hello.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/hello.sym
 
 PS_OBJS := \
 	obj/ps/main.o \
 	obj/ps/process_list.o \
 	obj/utils/realloc.o
 
-$(USER_LIB)/_ps: $(PS_OBJS) $(USER_OBJS)
+$(USER_BIN)/_ps: $(PS_OBJS) $(USER_OBJS)
+	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
-	$(OBJDUMP) -S $@ > $(USER_LIB)/ps.asm
-	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_LIB)/ps.sym
+	$(OBJDUMP) -S $@ > $(USER_BIN)/ps.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/ps.sym
 
-obj/%.o: src/%.c $(wildcard src/*.h)
-	mkdir -p $(@D)
+$(OBJ)/%.o: src/%.c
+	@mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(USER_LIB)/usys.S : $(USER_LIB)/usys.pl
+$(USER_OBJ)/%.o: $(USER_LIB)/%.c
+	@mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(KERNEL_OBJ)/%.o: $(KERNEL_LIB)/%.c
+	@mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(KERNEL_OBJ)/%.o: $(KERNEL_LIB)/%.S
+	@mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+$(USER_LIB)/usys.S: $(USER_LIB)/usys.pl
 	perl $(USER_LIB)/usys.pl > $(USER_LIB)/usys.S
 
-$(USER_LIB)/usys.o : $(USER_LIB)/usys.S
-	$(CC) $(CFLAGS) -c -o $(USER_LIB)/usys.o $(USER_LIB)/usys.S
+$(USER_OBJ)/usys.o: $(USER_LIB)/usys.S
+	@mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) -o $@ $<
 
-$(USER_LIB)/_forktest: $(USER_LIB)/forktest.o $(USER_OBJS)
+$(USER_BIN)/_forktest: $(USER_OBJ)/forktest.o $(USER_OBJS)
 	# forktest has less library code linked in - needs to be small
 	# in order to be able to max out the proc table.
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $(USER_LIB)/_forktest $(USER_LIB)/forktest.o $(USER_LIB)/ulib.o $(USER_LIB)/usys.o
-	$(OBJDUMP) -S $(USER_LIB)/_forktest > $(USER_LIB)/forktest.asm
+	@mkdir -p $(@D)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $< $(USER_OBJ)/ulib.o $(USER_OBJ)/usys.o
+	$(OBJDUMP) -S $@ > $(USER_BIN)/forktest.asm
 
-$(LIB)/mkfs/mkfs: $(LIB)/mkfs/mkfs.c $(KERNEL_LIB)/fs.h $(KERNEL_LIB)/param.h
-	gcc -Werror -Wall -I. -o $(LIB)/mkfs/mkfs $(LIB)/mkfs/mkfs.c
+$(BIN)/mkfs/mkfs: $(LIB)/mkfs/mkfs.c $(KERNEL_LIB)/fs.h $(KERNEL_LIB)/param.h
+	@mkdir -p $(@D)
+	gcc -Werror -Wall -I. -o $@ $<
 
-$(LIB)/fs.img: $(LIB)/mkfs/mkfs $(LIB)/README $(USER_PROGRAMS)
-	$(LIB)/mkfs/mkfs $(LIB)/fs.img $(LIB)/README $(USER_PROGRAMS)
+$(BIN)/fs.img: $(BIN)/mkfs/mkfs $(LIB)/README $(USER_PROGRAMS)
+	@mkdir -p $(@D)
+	$(BIN)/mkfs/mkfs $(BIN)/fs.img $(LIB)/README $(USER_PROGRAMS)
 
-$(KERNEL_LIB)/kernel: $(KERNEL_OBJS) $(KERNEL_LIB)/kernel.ld $(USER_LIB)/initcode
-	$(LD) $(LDFLAGS) -T $(KERNEL_LIB)/kernel.ld -o $(KERNEL_LIB)/kernel $(KERNEL_OBJS) 
-	$(OBJDUMP) -S $(KERNEL_LIB)/kernel > $(KERNEL_LIB)/kernel.asm
-	$(OBJDUMP) -t $(KERNEL_LIB)/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(KERNEL_LIB)/kernel.sym
+$(KERNEL_BIN)/kernel: $(KERNEL_OBJS) $(KERNEL_LIB)/kernel.ld $(USER_BIN)/initcode
+	@mkdir -p $(@D)
+	$(LD) $(LDFLAGS) -T $(KERNEL_LIB)/kernel.ld -o $@ $(KERNEL_OBJS) 
+	$(OBJDUMP) -S $(KERNEL_BIN)/kernel > $(KERNEL_BIN)/kernel.asm
+	$(OBJDUMP) -t $(KERNEL_BIN)/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(KERNEL_BIN)/kernel.sym
 
-$(USER_LIB)/initcode: $(USER_LIB)/initcode.S
-	$(CC) $(CFLAGS) -march=rv64g -nostdinc -I. -Ikernel -c $(USER_LIB)/initcode.S -o $(USER_LIB)/initcode.o
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o $(USER_LIB)/initcode.out $(USER_LIB)/initcode.o
-	$(OBJCOPY) -S -O binary $(USER_LIB)/initcode.out $(USER_LIB)/initcode
-	$(OBJDUMP) -S $(USER_LIB)/initcode.o > $(USER_LIB)/initcode.asm
+$(USER_BIN)/initcode: $(USER_LIB)/initcode.S
+	@mkdir -p $(@D)
+	@mkdir -p $(USER_OBJ)
+	$(CC) $(CFLAGS) -march=rv64g -nostdinc -I. -Ikernel -c $< -o $(USER_OBJ)/initcode.o
+	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o $(USER_BIN)/initcode.out $(USER_OBJ)/initcode.o
+	$(OBJCOPY) -S -O binary $(USER_BIN)/initcode.out $@
+	$(OBJDUMP) -S $(USER_OBJ)/initcode.o > $(USER_BIN)/initcode.asm
 
 tags: $(KERNEL_OBJS) _init
 	etags *.S *.c
@@ -179,19 +209,9 @@ clean:
 		$(LIB)/*.log \
 		$(LIB)/*.ind \
 		$(LIB)/*.ilg \
-		$(LIB)/*/*.o \
-		$(LIB)/*/*.d \
-		$(LIB)/*/*.asm \
-		$(LIB)/*/*.sym \
 		$(LIB)/*.tar.gz \
-		$(LIB)/fs.img \
 		$(LIB)/.gdbinit \
-		$(LIB)/mkfs/mkfs \
-		$(KERNEL_LIB)/kernel \
-		$(USER_LIB)/initcode \
-		$(USER_LIB)/initcode.out \
-        $(USER_LIB)/usys.S \
-		$(USER_PROGRAMS)
+		$(USER_LIB)/usys.S \
 
 	rm -rf \
 		obj \
@@ -211,18 +231,18 @@ ifndef CPUS
 CPUS := 3
 endif
 
-QEMUOPTS := -machine virt -bios none -kernel $(KERNEL_LIB)/kernel -m 128M -smp $(CPUS) -nographic \
+QEMUOPTS := -machine virt -bios none -kernel $(KERNEL_BIN)/kernel -m 128M -smp $(CPUS) -nographic \
 	-global virtio-mmio.force-legacy=false \
-	-drive file=lib/fs.img,if=none,format=raw,id=x0 \
+	-drive file=$(BIN)/fs.img,if=none,format=raw,id=x0 \
 	-device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 
-qemu: $(KERNEL_LIB)/kernel $(LIB)/fs.img
+qemu: $(KERNEL_BIN)/kernel $(BIN)/fs.img
 	$(QEMU) $(QEMUOPTS)
 
 $(LIB)/.gdbinit: $(LIB)/.gdbinit.tmpl-riscv
 	sed "s/:1234/:$(GDBPORT)/" < $^ > $@
 
-qemu-gdb: $(KERNEL_LIB)/kernel $(LIB)/.gdbinit $(LIB)/fs.img
+qemu-gdb: $(KERNEL_BIN)/kernel $(LIB)/.gdbinit $(BIN)/fs.img
 	@echo "*** Now run 'gdb' in another window." 1>&2
 	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB)
 
