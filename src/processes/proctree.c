@@ -1,3 +1,9 @@
+/**
+ * @file
+ * Prints all currently running processes in a tree, with each child process indented under its
+ * parent.
+ */
+
 #include "../../lib/user/user.h"
 #include "../utils/int_list.h"
 #include "../utils/strings.h"
@@ -6,6 +12,12 @@
 
 #define MAX_PROCTREE_DEPTH 30
 
+/**
+ * Prints info of the given `proc`, and recursively prints all of its child processes.
+ *
+ * Takes a list of IDs of processes already printed to avoid duplicates, and `depth` to properly
+ * indent children under their parent (should start at 0).
+ */
 void print_process_with_children(
     struct process_info proc, struct process_list proc_list, struct int_list* printed_ids, int depth
 )
@@ -61,7 +73,6 @@ int main(int argc, char** argv)
     }
 
     destroy_int_list(&printed_ids);
-    destroy_process_list(res.processes);
-
+    destroy_process_list(&res.processes);
     exit(0);
 }

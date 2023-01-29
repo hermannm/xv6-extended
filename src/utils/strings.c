@@ -24,7 +24,6 @@ char* strncpy(char* target_string, const char* source_string, uint max_length)
         target_string[i] = source_char;
 
         if (source_char == '\0') {
-            printf("\0 found\n");
             return target_string;
         }
     }
@@ -33,10 +32,6 @@ char* strncpy(char* target_string, const char* source_string, uint max_length)
     return target_string;
 }
 
-/**
- * Adapted from Apple's libc implementation:
- * https://opensource.apple.com/source/Libc/Libc-262/ppc/gen/strncat.c.auto.html
- */
 char* strncat(char* target_string, const char* source_string, uint max_length)
 {
     uint target_length = strlen(target_string);

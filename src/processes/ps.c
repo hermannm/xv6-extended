@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Prints all currently running processes, along with their status code.
+ */
+
 #include "../../lib/user/user.h"
 #include "process_list.h"
 
@@ -14,7 +19,6 @@ int main(int argc, char** argv)
         printf("%s (%d): %d\n", proc.name, proc.id, proc.status);
     }
 
-    destroy_process_list(res.processes);
-
+    destroy_process_list(&res.processes);
     exit(0);
 }

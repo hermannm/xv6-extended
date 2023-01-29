@@ -3,7 +3,10 @@
 #include "../utils/realloc.h"
 #include "sys_getprocs.h"
 
-#define BATCH_SIZE 2
+/**
+ * Number of processes to fetch information about at a time.
+ */
+#define BATCH_SIZE 8
 
 struct get_processes_result get_processes()
 {
@@ -22,6 +25,7 @@ struct get_processes_result get_processes()
         int return_code = getprocs(BATCH_SIZE, offset, res.processes.array);
         if (return_code == GETPROCS_MEMORY_COPY_ERROR) {
             res.error = GET_PROCESSES_SYSCALL_ERROR;
+            destroy_process_list(&res.processes);
             return res;
         }
 
@@ -38,9 +42,9 @@ struct get_processes_result get_processes()
     return res;
 }
 
-void destroy_process_list(struct process_list proc_list)
+void destroy_process_list(struct process_list* proc_list)
 {
-    free(proc_list.array);
+    free(proc_list->array);
 }
 
 void increase_process_list_capacity(struct process_list* proc_list, uint extra_capacity)

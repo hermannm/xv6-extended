@@ -1,4 +1,3 @@
-#include "../../src/processes/sys_getprocs.h"
 #include "../kernel/types.h"
 
 struct stat;
@@ -25,7 +24,6 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-enum getprocs_result getprocs(int start_index, int end_index, struct process_info* proc_info_array);
 
 // ulib.c
 int stat(const char*, struct stat*);
