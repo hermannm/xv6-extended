@@ -24,7 +24,7 @@ uint64 sys_getprocs(void)
             break;
         }
 
-        // wait_lock must be acquired to access proc.parent.
+        // wait_lock must be acquired to access proc.parent
         acquire(&wait_lock);
 
         struct proc current_proc = proc[proc_index];
