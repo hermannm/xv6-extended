@@ -180,8 +180,8 @@ $(USER_OBJ)/usys.o: $(USER_LIB)/usys.S
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(USER_BIN)/_forktest: $(USER_OBJ)/forktest.o $(USER_OBJS)
-	# forktest has less library code linked in - needs to be small
-	# in order to be able to max out the proc table.
+# forktest has less library code linked in - needs to be small in order to be able to max out the
+# proc table.
 	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $< $(USER_OBJ)/ulib.o $(USER_OBJ)/usys.o
 	$(OBJDUMP) -S $@ > $(USER_BIN)/forktest.asm
@@ -215,6 +215,7 @@ clean:
 	rm -f \
 		*.ans \
 		*.out* \
+		*.tar.gz \
 		$(LIB)/*.tex \
 		$(LIB)/*.dvi \
 		$(LIB)/*.idx \
@@ -222,7 +223,6 @@ clean:
 		$(LIB)/*.log \
 		$(LIB)/*.ind \
 		$(LIB)/*.ilg \
-		$(LIB)/*.tar.gz \
 		$(LIB)/.gdbinit \
 		$(USER_LIB)/usys.S \
 
@@ -231,7 +231,7 @@ clean:
 		$(BIN) \
 		$(LIB)/__pycache__
 
-# try to generate a unique GDB port
+# Try to generate a unique GDB port
 GDBPORT := $(shell expr `id -u` % 5000 + 25000)
 
 # QEMU's gdb stub command line changed in 0.11
@@ -260,7 +260,7 @@ qemu-gdb: $(KERNEL_BIN)/kernel $(LIB)/.gdbinit $(BIN)/fs.img
 	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB)
 
 ##
-##  For testing lab grading script
+## For testing lab grading script
 ##
 
 GRADEFLAGS += -v --color always
@@ -275,7 +275,11 @@ test:
 	./$(LIB)/test-lab-$(LAB) $(GRADEFLAGS) 2>&1 | tee ./test.ans
 
 prepare-handin: test
-	tar -zcvf lab-$(LAB)-handin.tar.gz .
+# Fixes tar error "file changed as we read it"
+# https://stackoverflow.com/questions/20318852/tar-file-changed-as-we-read-it
+	@touch lab-$(LAB)-handin.tar.gz
+
+	tar --exclude=lab-$(LAB)-handin.tar.gz -zcvf lab-$(LAB)-handin.tar.gz .
 
 internal-prepare-handout:
 	tar -zcvf lab-$(LAB)-handout.tar.gz .
