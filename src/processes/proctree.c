@@ -60,6 +60,7 @@ int main(int argc, char** argv)
         print_process_with_children(proc, res.processes, &printed_ids, 0);
     }
 
+    destroy_int_list(&printed_ids);
     destroy_process_list(res.processes);
 
     exit(0);

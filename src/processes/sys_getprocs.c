@@ -30,8 +30,8 @@ uint64 sys_getprocs(void)
         acquire(&current_proc.lock);
 
         if (current_proc.state == UNUSED) {
-            release(&wait_lock);
             release(&current_proc.lock);
+            release(&wait_lock);
             break;
         }
 
@@ -49,8 +49,8 @@ uint64 sys_getprocs(void)
             proc_info.parent_id = -1;
         }
 
-        release(&wait_lock);
         release(&current_proc.lock);
+        release(&wait_lock);
 
         uint64 target_address =
             args.proc_info_array_address + sizeof(struct process_info) * proc_index;
