@@ -124,8 +124,7 @@ $(USER_BIN)/_%: $(USER_OBJ)/%.o $(USER_OBJS)
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/$*.sym
 
 HELLO_OBJS := \
-	$(OBJ)/hello/main.o \
-	$(OBJ)/hello/greetings.o
+	$(OBJ)/hello/main.o
 
 $(USER_BIN)/_hello: $(HELLO_OBJS) $(USER_OBJS)
 	@mkdir -p $(@D)
