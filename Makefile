@@ -40,7 +40,7 @@ KERNEL_OBJS := \
   $(KERNEL_OBJ)/kernelvec.o \
   $(KERNEL_OBJ)/plic.o \
   $(KERNEL_OBJ)/virtio_disk.o \
-  $(OBJ)/ps/sys_getprocs.o
+  $(OBJ)/processes/sys_getprocs.o
 
 USER_OBJS := \
 	$(USER_OBJ)/ulib.o \
@@ -66,7 +66,8 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_wc \
 	$(USER_BIN)/_zombie \
 	$(USER_BIN)/_hello \
-	$(USER_BIN)/_ps
+	$(USER_BIN)/_ps \
+	$(USER_BIN)/_proctree
 
 .DEFAULT_GOAL := $(KERNEL_BIN)/kernel
 
@@ -123,8 +124,8 @@ $(USER_BIN)/_%: $(USER_OBJ)/%.o $(USER_OBJS)
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/$*.sym
 
 HELLO_OBJS := \
-	obj/hello/main.o \
-	obj/hello/greetings.o
+	$(OBJ)/hello/main.o \
+	$(OBJ)/hello/greetings.o
 
 $(USER_BIN)/_hello: $(HELLO_OBJS) $(USER_OBJS)
 	@mkdir -p $(@D)
@@ -133,15 +134,28 @@ $(USER_BIN)/_hello: $(HELLO_OBJS) $(USER_OBJS)
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/hello.sym
 
 PS_OBJS := \
-	obj/ps/main.o \
-	obj/ps/process_list.o \
-	obj/utils/realloc.o
+	$(OBJ)/processes/ps.o \
+	$(OBJ)/processes/process_list.o \
+	$(OBJ)/utils/realloc.o
 
 $(USER_BIN)/_ps: $(PS_OBJS) $(USER_OBJS)
 	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
 	$(OBJDUMP) -S $@ > $(USER_BIN)/ps.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/ps.sym
+
+PROCTREE_OBJS := \
+	$(OBJ)/processes/proctree.o \
+	$(OBJ)/processes/process_list.o \
+	$(OBJ)/utils/realloc.o \
+	$(OBJ)/utils/int_list.o \
+	$(OBJ)/utils/strings.o
+
+$(USER_BIN)/_proctree: $(PROCTREE_OBJS) $(USER_OBJS)
+	@mkdir -p $(@D)
+	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
+	$(OBJDUMP) -S $@ > $(USER_BIN)/proctree.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/proctree.sym
 
 $(OBJ)/%.o: src/%.c
 	@mkdir -p $(@D)
@@ -214,8 +228,8 @@ clean:
 		$(USER_LIB)/usys.S \
 
 	rm -rf \
-		obj \
-		bin \
+		$(OBJ) \
+		$(BIN) \
 		$(LIB)/__pycache__
 
 # try to generate a unique GDB port

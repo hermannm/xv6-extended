@@ -3,8 +3,8 @@
 
 int main(int argc, char** argv)
 {
-    struct list_processes_result res = list_processes();
-    if (res.error == LIST_PROCESSES_SYSCALL_ERROR) {
+    struct get_processes_result res = get_processes();
+    if (res.error == GET_PROCESSES_SYSCALL_ERROR) {
         printf("[ERROR] Failed to list processes due to syscall error");
         exit(1);
     }

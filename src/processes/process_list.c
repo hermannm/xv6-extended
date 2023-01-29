@@ -5,23 +5,23 @@
 
 #define BATCH_SIZE 2
 
-struct list_processes_result list_processes()
+struct get_processes_result get_processes()
 {
-    struct list_processes_result res = {
+    struct get_processes_result res = {
         .processes =
             {
-                .array = malloc(sizeof(struct process_info) * BATCH_SIZE),
+                .array = malloc(BATCH_SIZE * sizeof(struct process_info)),
                 .length = 0,
                 .capacity = BATCH_SIZE,
             },
-        .error = LIST_PROCESSES_SUCCESS,
+        .error = GET_PROCESSES_SUCCESS,
     };
 
     int offset = 0;
     while (1) {
         int return_code = getprocs(BATCH_SIZE, offset, res.processes.array);
         if (return_code == GETPROCS_MEMORY_COPY_ERROR) {
-            res.error = LIST_PROCESSES_SYSCALL_ERROR;
+            res.error = GET_PROCESSES_SYSCALL_ERROR;
             return res;
         }
 
@@ -49,8 +49,8 @@ void increase_process_list_capacity(struct process_list* proc_list, uint extra_c
     uint new_capacity = old_capacity + extra_capacity;
 
     proc_list->array = realloc(
-        proc_list->array, sizeof(struct process_info) * old_capacity,
-        sizeof(struct process_info) * new_capacity
+        proc_list->array, old_capacity * sizeof(struct process_info),
+        new_capacity * sizeof(struct process_info)
     );
 
     proc_list->capacity = new_capacity;

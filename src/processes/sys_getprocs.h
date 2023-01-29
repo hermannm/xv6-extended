@@ -3,10 +3,13 @@
 
 #include "../../lib/kernel/types.h"
 
+#define MAX_PROCESS_NAME_LENGTH 16
+
 struct process_info {
     int id;
+    int parent_id;
     int status;
-    char name[16];
+    char name[MAX_PROCESS_NAME_LENGTH];
 };
 
 struct getprocs_args {

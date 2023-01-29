@@ -10,17 +10,17 @@ struct process_list {
     uint capacity;
 };
 
-enum list_processes_error {
-    LIST_PROCESSES_SUCCESS = 0,
-    LIST_PROCESSES_SYSCALL_ERROR = -1,
+enum get_processes_error {
+    GET_PROCESSES_SUCCESS = 0,
+    GET_PROCESSES_SYSCALL_ERROR = -1,
 };
 
-struct list_processes_result {
+struct get_processes_result {
     struct process_list processes;
-    enum list_processes_error error;
+    enum get_processes_error error;
 };
 
-struct list_processes_result list_processes();
+struct get_processes_result get_processes();
 
 void destroy_process_list(struct process_list);
 

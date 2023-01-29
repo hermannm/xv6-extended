@@ -8,6 +8,8 @@
 
 extern struct proc proc[NPROC];
 
+extern struct spinlock wait_lock;
+
 uint64 sys_getprocs(void)
 {
     struct getprocs_args args = get_getprocs_args();
@@ -22,10 +24,13 @@ uint64 sys_getprocs(void)
             break;
         }
 
+        acquire(&wait_lock);
+
         struct proc current_proc = proc[proc_index];
         acquire(&current_proc.lock);
 
         if (current_proc.state == UNUSED) {
+            release(&wait_lock);
             release(&current_proc.lock);
             break;
         }
@@ -34,8 +39,17 @@ uint64 sys_getprocs(void)
             .id = current_proc.pid,
             .status = current_proc.state,
         };
-        strncpy(proc_info.name, current_proc.name, 16);
+        strncpy(proc_info.name, current_proc.name, MAX_PROCESS_NAME_LENGTH);
 
+        if (current_proc.parent) {
+            acquire(&current_proc.parent->lock);
+            proc_info.parent_id = current_proc.parent->pid;
+            release(&current_proc.parent->lock);
+        } else {
+            proc_info.parent_id = -1;
+        }
+
+        release(&wait_lock);
         release(&current_proc.lock);
 
         uint64 target_address =
