@@ -27,29 +27,33 @@ uint64 sys_getprocs(void)
             break;
         }
 
-        struct proc current_proc = proc[proc_index];
-        acquire(&current_proc.lock);
+        // `proc + proc_index` is done instead of `proc[proc_index]` in order to not dereference the
+        // pointer, as that would copy the process's lock, which invalidates it.
+        struct proc* current_proc = proc + proc_index;
 
-        if (current_proc.state == UNUSED) {
-            release(&current_proc.lock);
+        acquire(&current_proc->lock);
+
+        if (current_proc->state == UNUSED) {
+            release(&current_proc->lock);
             break;
         }
 
         struct process_info proc_info = {
-            .id = current_proc.pid,
-            .status = current_proc.state,
+            .id = current_proc->pid,
+            .status = current_proc->state,
         };
-        strncpy(proc_info.name, current_proc.name, MAX_PROCESS_NAME_LENGTH);
+        strncpy(proc_info.name, current_proc->name, MAX_PROCESS_NAME_LENGTH);
 
-        if (current_proc.parent) {
-            acquire(&current_proc.parent->lock);
-            proc_info.parent_id = current_proc.parent->pid;
-            release(&current_proc.parent->lock);
+        struct proc* parent_proc = current_proc->parent;
+        if (parent_proc) {
+            acquire(&parent_proc->lock);
+            proc_info.parent_id = parent_proc->pid;
+            release(&parent_proc->lock);
         } else {
             proc_info.parent_id = -1;
         }
 
-        release(&current_proc.lock);
+        release(&current_proc->lock);
 
         uint64 target_address =
             args.proc_info_array_address + sizeof(struct process_info) * proc_index;
