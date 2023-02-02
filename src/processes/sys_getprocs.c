@@ -17,22 +17,21 @@ uint64 sys_getprocs(void)
     struct proc* calling_proc = myproc();
     pagetable_t calling_proc_pagetable = calling_proc->pagetable;
 
+    // wait_lock must be acquired to access proc.parent
+    acquire(&wait_lock);
+
     int procs_added;
     for (procs_added = 0; procs_added < args.procs_to_get; procs_added++) {
         int proc_index = args.offset + procs_added;
-        if (proc_index == NPROC) {
+        if (proc_index >= NPROC) {
             break;
         }
-
-        // wait_lock must be acquired to access proc.parent
-        acquire(&wait_lock);
 
         struct proc current_proc = proc[proc_index];
         acquire(&current_proc.lock);
 
         if (current_proc.state == UNUSED) {
             release(&current_proc.lock);
-            release(&wait_lock);
             break;
         }
 
@@ -51,7 +50,6 @@ uint64 sys_getprocs(void)
         }
 
         release(&current_proc.lock);
-        release(&wait_lock);
 
         uint64 target_address =
             args.proc_info_array_address + sizeof(struct process_info) * proc_index;
@@ -60,9 +58,12 @@ uint64 sys_getprocs(void)
             calling_proc_pagetable, target_address, (char*)&proc_info, sizeof(struct process_info)
         );
         if (err_code == -1) {
+            release(&wait_lock);
             return GETPROCS_MEMORY_COPY_ERROR;
         }
     }
+
+    release(&wait_lock);
 
     return procs_added;
 }
