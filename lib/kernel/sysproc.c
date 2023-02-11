@@ -81,3 +81,17 @@ uint64 sys_uptime(void)
     release(&tickslock);
     return xticks;
 }
+
+uint64 sys_schedls(void)
+{
+    schedls();
+    return 0;
+}
+
+uint64 sys_schedset(void)
+{
+    int id = 0;
+    argint(0, &id);
+    schedset(id - 1);
+    return 0;
+}

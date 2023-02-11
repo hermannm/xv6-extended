@@ -149,6 +149,40 @@ def run_tests():
         sys.exit(1)
 
 
+def run_grade():
+    global options
+    parser = OptionParser(usage="usage: %prog [-v] [filters...]")
+    parser.add_option(
+        "-v", "--verbose", action="store_true", help="print commands"
+    )
+    parser.add_option(
+        "--color",
+        choices=["never", "always", "auto"],
+        default="auto",
+        help="never, always, or auto",
+    )
+    (options, args) = parser.parse_args()
+
+    # Start with a full build to catch build errors
+    make()
+
+    # Clean the file system if there is one
+    reset_fs()
+
+    # Run tests
+    limit = list(map(str.lower, args))
+    try:
+        for test in TESTS:
+            if not limit or any(l in test.title.lower() for l in limit):
+                test()
+        if not limit:
+            print("Passed %d out of %d tests" % (TOTAL, POSSIBLE))
+    except KeyboardInterrupt:
+        pass
+    if TOTAL < POSSIBLE:
+        sys.exit(1)
+
+
 def get_current_test():
     if not CURRENT_TEST:
         raise RuntimeError("No test is running")

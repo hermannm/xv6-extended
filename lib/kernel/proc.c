@@ -20,6 +20,21 @@ static void freeproc(struct proc* p);
 
 extern char trampoline[]; // trampoline.S
 
+struct scheduler_impl {
+    char name[15];
+    void (*impl)(void);
+    int id;
+};
+
+// Register all available schedulers here
+// also update schedc, this indicates how long the SchedImpl array is
+#define SCHEDC 1
+static struct scheduler_impl available_schedulers[SCHEDC] = {
+    {"Round Robin", &rr_scheduler, 1},
+};
+
+void (*sched_pointer)(void) = &rr_scheduler;
+
 // helps ensure that wakeups of wait()ing
 // parents are not lost. helps obey the
 // memory model when using p->parent.
@@ -421,31 +436,39 @@ int wait(uint64 addr)
 //    via swtch back to the scheduler.
 void scheduler(void)
 {
+    // level of indirection: that way we can change the scheduler during runtime
+    while (1) {
+        (*sched_pointer)();
+    }
+}
+
+void rr_scheduler(void)
+{
     struct proc* p;
     struct cpu* c = mycpu();
 
     c->proc = 0;
-    for (;;) {
-        // Avoid deadlock by ensuring that devices can interrupt.
-        intr_on();
+    // Avoid deadlock by ensuring that devices can interrupt.
+    intr_on();
 
-        for (p = proc; p < &proc[NPROC]; p++) {
-            acquire(&p->lock);
-            if (p->state == RUNNABLE) {
-                // Switch to chosen process.  It is the process's job
-                // to release its lock and then reacquire it
-                // before jumping back to us.
-                p->state = RUNNING;
-                c->proc = p;
-                swtch(&c->context, &p->context);
+    for (p = proc; p < &proc[NPROC]; p++) {
+        acquire(&p->lock);
+        if (p->state == RUNNABLE) {
+            // Switch to chosen process.  It is the process's job
+            // to release its lock and then reacquire it
+            // before jumping back to us.
+            p->state = RUNNING;
+            c->proc = p;
+            swtch(&c->context, &p->context);
 
-                // Process is done running for now.
-                // It should have changed its p->state before coming back.
-                c->proc = 0;
-            }
-            release(&p->lock);
+            // Process is done running for now.
+            // It should have changed its p->state before coming back.
+            c->proc = 0;
         }
+        release(&p->lock);
     }
+    // In case a setsched happened, we will switch to the new scheduler after one
+    // Round Robin round has completed.
 }
 
 // Switch to scheduler.  Must hold only p->lock
@@ -640,4 +663,29 @@ void procdump(void)
         printf("%d %s %s", p->pid, state, p->name);
         printf("\n");
     }
+}
+
+void schedls()
+{
+    printf("[ ]\tScheduler Name\tScheduler ID\n");
+    printf("====================================\n");
+    for (int i = 0; i < SCHEDC; i++) {
+        if (available_schedulers[i].impl == sched_pointer) {
+            printf("[*]\t");
+        } else {
+            printf("   \t");
+        }
+        printf("%s\t%d\n", available_schedulers[i].name, available_schedulers[i].id);
+    }
+    printf("\n*: current scheduler\n\n");
+}
+
+void schedset(int id)
+{
+    if (id < 0 || SCHEDC <= id) {
+        printf("Scheduler unchanged: ID out of range\n");
+        return;
+    }
+    sched_pointer = available_schedulers[id].impl;
+    printf("Scheduler successfully changed to %s\n", available_schedulers[id].name);
 }

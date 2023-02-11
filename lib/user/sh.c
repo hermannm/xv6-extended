@@ -140,9 +140,26 @@ int getcmd(char* buf, int nbuf)
     return 0;
 }
 
-int main(void)
+void parse_buffer(char* buf)
 {
-    static char buf[100];
+    if (buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' ') {
+        // Chdir must be called by the parent, not the child.
+        buf[strlen(buf) - 1] = 0; // chop \n
+        if (chdir(buf + 3) < 0)
+            fprintf(2, "cannot cd %s\n", buf + 3);
+        return;
+    }
+    if (buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't') {
+        exit(0);
+    }
+    if (fork1() == 0)
+        runcmd(parsecmd(buf));
+    wait(0);
+}
+
+int main(int argc, char* argv[])
+{
+    static char buf[120];
     int fd;
 
     // Ensure that three file descriptors are open.
@@ -153,18 +170,23 @@ int main(void)
         }
     }
 
+    if (argc == 2) {
+        char* shell_script_file = argv[1];
+        int shfd = open(shell_script_file, O_RDWR);
+        if (shfd < 0) {
+            printf("Failed to open %s\n", shell_script_file);
+            exit(1);
+        }
+        read(shfd, buf, sizeof(buf));
+        do {
+            parse_buffer(buf);
+        } while (read(shfd, buf, sizeof(buf)) == sizeof(buf));
+        exit(0);
+    }
+
     // Read and run input commands.
     while (getcmd(buf, sizeof(buf)) >= 0) {
-        if (buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' ') {
-            // Chdir must be called by the parent, not the child.
-            buf[strlen(buf) - 1] = 0; // chop \n
-            if (chdir(buf + 3) < 0)
-                fprintf(2, "cannot cd %s\n", buf + 3);
-            continue;
-        }
-        if (fork1() == 0)
-            runcmd(parsecmd(buf));
-        wait(0);
+        parse_buffer(buf);
     }
     exit(0);
 }

@@ -24,6 +24,8 @@
 
 #define LIB_DIR_PATH "lib/"
 #define LIB_DIR_PATH_LEN 4
+#define USER_LIB_DIR_PATH "lib/user/"
+#define USER_LIB_DIR_PATH_LEN 9
 #define USER_BIN_PATH "bin/user/"
 #define USER_BIN_PATH_LEN 9
 
@@ -140,6 +142,8 @@ int main(int argc, char* argv[])
         char* shortname;
         if (strncmp(argv[i], USER_BIN_PATH, USER_BIN_PATH_LEN) == 0) {
             shortname = argv[i] + USER_BIN_PATH_LEN;
+        } else if (strncmp(argv[i], USER_LIB_DIR_PATH, USER_LIB_DIR_PATH_LEN) == 0) {
+            shortname = argv[i] + USER_LIB_DIR_PATH_LEN;
         } else if (strncmp(argv[i], LIB_DIR_PATH, LIB_DIR_PATH_LEN) == 0) {
             shortname = argv[i] + LIB_DIR_PATH_LEN;
         } else {

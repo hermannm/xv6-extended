@@ -50,6 +50,7 @@ USER_OBJS := \
 
 USER_PROGRAMS := \
 	$(USER_BIN)/_cat \
+	$(USER_BIN)/_congen \
 	$(USER_BIN)/_echo \
 	$(USER_BIN)/_forktest \
 	$(USER_BIN)/_grep \
@@ -59,8 +60,11 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_ls \
 	$(USER_BIN)/_mkdir \
 	$(USER_BIN)/_rm \
+	$(USER_BIN)/_schedls \
+	$(USER_BIN)/_schedset \
 	$(USER_BIN)/_sh \
 	$(USER_BIN)/_stressfs \
+	$(USER_BIN)/_time \
 	$(USER_BIN)/_usertests \
 	$(USER_BIN)/_grind \
 	$(USER_BIN)/_wc \
@@ -190,9 +194,9 @@ $(BIN)/mkfs/mkfs: $(LIB)/mkfs/mkfs.c $(KERNEL_LIB)/fs.h $(KERNEL_LIB)/param.h
 	@mkdir -p $(@D)
 	gcc -Werror -Wall -I. -o $@ $<
 
-$(BIN)/fs.img: $(BIN)/mkfs/mkfs $(LIB)/README $(USER_PROGRAMS)
+$(BIN)/fs.img: $(BIN)/mkfs/mkfs $(LIB)/README $(USER_PROGRAMS) $(USER_LIB)/load.sh
 	@mkdir -p $(@D)
-	$(BIN)/mkfs/mkfs $(BIN)/fs.img $(LIB)/README $(USER_PROGRAMS)
+	$(BIN)/mkfs/mkfs $(BIN)/fs.img $(LIB)/README $(USER_PROGRAMS) $(USER_LIB)/load.sh
 
 $(KERNEL_BIN)/kernel: $(KERNEL_OBJS) $(KERNEL_LIB)/kernel.ld $(USER_BIN)/initcode
 	@mkdir -p $(@D)
