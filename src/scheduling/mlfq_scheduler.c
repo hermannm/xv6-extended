@@ -39,12 +39,14 @@ void mlfq_scheduler(void)
                 process_index = add_process_to_queue(queue, process_id);
 
                 if (process_index == -1) {
+                    release(&process->lock);
                     continue;
                 }
             } else {
                 process_index = queue_contains(queue, process_id);
 
                 if (process_index == -1) {
+                    release(&process->lock);
                     continue;
                 }
             }
