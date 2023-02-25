@@ -2,7 +2,6 @@
 #include "../../lib/kernel/defs.h"
 #include "../../lib/kernel/proc.h"
 #include "../../lib/kernel/riscv.h"
-#include "../utils/int_list.h"
 
 #define SCHEDULER_ITERATION_PRIORITY_RESET_INTERVAL 5
 
@@ -26,7 +25,7 @@ void mlfq_scheduler(void)
         for (struct proc* process = proc; process < &proc[NPROC]; process++) {
             acquire(&process->lock);
 
-            if (proc->state != RUNNABLE) {
+            if (process->state != RUNNABLE) {
                 release(&process->lock);
                 continue;
             }
