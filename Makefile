@@ -10,7 +10,7 @@ BIN := bin
 KERNEL_BIN := $(BIN)/kernel
 USER_BIN := $(BIN)/user
 
-LAB := l1
+LAB := l2
 
 KERNEL_OBJS := \
   $(KERNEL_OBJ)/entry.o \
@@ -40,7 +40,8 @@ KERNEL_OBJS := \
   $(KERNEL_OBJ)/kernelvec.o \
   $(KERNEL_OBJ)/plic.o \
   $(KERNEL_OBJ)/virtio_disk.o \
-  $(OBJ)/processes/sys_getprocs.o
+  $(OBJ)/processes/sys_getprocs.o \
+  $(OBJ)/scheduling/mlfq_scheduler.o
 
 USER_OBJS := \
 	$(USER_OBJ)/ulib.o \

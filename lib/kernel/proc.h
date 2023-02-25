@@ -1,3 +1,6 @@
+#ifndef PROCS_H
+#define PROCS_H
+
 #include "param.h"
 #include "riscv.h"
 #include "spinlock.h"
@@ -109,3 +112,5 @@ struct proc {
     struct inode* cwd;           // Current directory
     char name[16];               // Process name (debugging)
 };
+
+#endif // PROCS_H

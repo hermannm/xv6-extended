@@ -1,4 +1,5 @@
 #include "proc.h"
+#include "../../src/scheduling/mlfq_scheduler.h"
 #include "defs.h"
 #include "memlayout.h"
 #include "param.h"
@@ -28,9 +29,10 @@ struct scheduler_impl {
 
 // Register all available schedulers here
 // also update schedc, this indicates how long the SchedImpl array is
-#define SCHEDC 1
+#define SCHEDC 2
 static struct scheduler_impl available_schedulers[SCHEDC] = {
     {"Round Robin", &rr_scheduler, 1},
+    {"MLFQ", &mlfq_scheduler, 2},
 };
 
 void (*sched_pointer)(void) = &rr_scheduler;
