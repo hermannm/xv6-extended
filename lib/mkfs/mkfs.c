@@ -22,12 +22,17 @@
 
 #define NINODES 200
 
-#define LIB_DIR_PATH "lib/"
-#define LIB_DIR_PATH_LEN 4
-#define USER_LIB_DIR_PATH "lib/user/"
-#define USER_LIB_DIR_PATH_LEN 9
-#define USER_BIN_PATH "bin/user/"
-#define USER_BIN_PATH_LEN 9
+struct path_to_strip {
+    char* prefix;
+    int prefix_length;
+};
+
+#define PATHS_TO_STRIP_COUNT 4
+static struct path_to_strip paths_to_strip[PATHS_TO_STRIP_COUNT] = {
+    {.prefix = "bin/user/", .prefix_length = 9},
+    {.prefix = "lib/user/", .prefix_length = 9},
+    {.prefix = "lib/", .prefix_length = 4},
+};
 
 // Disk layout:
 // [ boot block | sb block | log | inode blocks | free bit map | data blocks ]
@@ -138,17 +143,21 @@ int main(int argc, char* argv[])
     iappend(rootino, &de, sizeof(de));
 
     for (i = 2; i < argc; i++) {
-        // get rid of LIB_DIR_PATH and USER_BIN_PATH
+        // strips path prefixes
         char* shortname;
-        if (strncmp(argv[i], USER_BIN_PATH, USER_BIN_PATH_LEN) == 0) {
-            shortname = argv[i] + USER_BIN_PATH_LEN;
-        } else if (strncmp(argv[i], USER_LIB_DIR_PATH, USER_LIB_DIR_PATH_LEN) == 0) {
-            shortname = argv[i] + USER_LIB_DIR_PATH_LEN;
-        } else if (strncmp(argv[i], LIB_DIR_PATH, LIB_DIR_PATH_LEN) == 0) {
-            shortname = argv[i] + LIB_DIR_PATH_LEN;
-        } else {
+        for (int j = 0; j < PATHS_TO_STRIP_COUNT; j++) {
+            struct path_to_strip path = paths_to_strip[j];
+
+            if (strncmp(argv[i], path.prefix, path.prefix_length) == 0) {
+                shortname = argv[i] + path.prefix_length;
+                break;
+            }
+        }
+        if (shortname == 0) {
             shortname = argv[i];
         }
+
+        printf("%s\n", shortname);
 
         assert(index(shortname, '/') == 0);
 
