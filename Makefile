@@ -1,3 +1,5 @@
+SRC := src
+
 LIB := lib
 KERNEL_LIB := $(LIB)/kernel
 USER_LIB := $(LIB)/user
@@ -9,8 +11,6 @@ USER_OBJ := $(OBJ)/user
 BIN := bin
 KERNEL_BIN := $(BIN)/kernel
 USER_BIN := $(BIN)/user
-
-LAB := l2
 
 KERNEL_OBJS := \
   $(KERNEL_OBJ)/entry.o \
@@ -73,6 +73,9 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_hello \
 	$(USER_BIN)/_ps \
 	$(USER_BIN)/_proctree
+
+SCRIPTS := \
+	$(USER_LIB)/load.sh
 
 .DEFAULT_GOAL := $(KERNEL_BIN)/kernel
 
@@ -161,7 +164,7 @@ $(USER_BIN)/_proctree: $(PROCTREE_OBJS) $(USER_OBJS)
 	$(OBJDUMP) -S $@ > $(USER_BIN)/proctree.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/proctree.sym
 
-$(OBJ)/%.o: src/%.c
+$(OBJ)/%.o: $(SRC)/%.c
 	@mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
@@ -195,9 +198,9 @@ $(BIN)/mkfs/mkfs: $(LIB)/mkfs/mkfs.c $(KERNEL_LIB)/fs.h $(KERNEL_LIB)/param.h
 	@mkdir -p $(@D)
 	gcc -Werror -Wall -I. -o $@ $<
 
-$(BIN)/fs.img: $(BIN)/mkfs/mkfs $(LIB)/README $(USER_PROGRAMS) $(USER_LIB)/load.sh
+$(BIN)/fs.img: $(BIN)/mkfs/mkfs $(LIB)/README $(USER_PROGRAMS) $(SCRIPTS)
 	@mkdir -p $(@D)
-	$(BIN)/mkfs/mkfs $(BIN)/fs.img $(LIB)/README $(USER_PROGRAMS) $(USER_LIB)/load.sh
+	$(BIN)/mkfs/mkfs $(BIN)/fs.img $(LIB)/README $(USER_PROGRAMS) $(SCRIPTS)
 
 $(KERNEL_BIN)/kernel: $(KERNEL_OBJS) $(KERNEL_LIB)/kernel.ld $(USER_BIN)/initcode
 	@mkdir -p $(@D)
@@ -273,6 +276,8 @@ GRADEFLAGS += -v --color always
 print-gdbport:
 	@echo $(GDBPORT)
 
+LAB := l2
+
 test:
 	@echo $(MAKE) clean
 	@$(MAKE) clean || \
@@ -285,6 +290,3 @@ prepare-handin: test
 	@touch lab-$(LAB)-handin.tar.gz
 
 	tar --exclude=lab-$(LAB)-handin.tar.gz -zcvf lab-$(LAB)-handin.tar.gz .
-
-internal-prepare-handout:
-	tar -zcvf lab-$(LAB)-handout.tar.gz .
