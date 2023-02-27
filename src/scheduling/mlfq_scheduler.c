@@ -3,6 +3,13 @@
 #include "../../lib/kernel/proc.h"
 #include "../../lib/kernel/riscv.h"
 
+#define QUEUE_COUNT 3
+
+#define HIGHEST_PRIORITY_QUEUE 0
+#define LOWEST_PRIORITY_QUEUE QUEUE_COUNT - 1
+
+#define UNUSED_PROCESS 0
+
 #define SCHEDULER_ITERATION_PRIORITY_RESET_INTERVAL 5
 
 extern struct proc proc[NPROC];
@@ -35,14 +42,14 @@ void mlfq_scheduler(void)
 
             int process_index;
             if (queue_index == HIGHEST_PRIORITY_QUEUE && !queues_contain(queues, process_id)) {
-                process_index = add_process_to_queue(queue, process_id);
+                process_index = try_add_process_to_queue(queue, process_id);
 
                 if (process_index == -1) {
                     release(&process->lock);
                     continue;
                 }
             } else {
-                process_index = queue_contains(queue, process_id);
+                process_index = try_get_process_index_in_queue(queue, process_id);
 
                 if (process_index == -1) {
                     release(&process->lock);
@@ -64,8 +71,10 @@ void mlfq_scheduler(void)
                 remove_process_from_queue(queue, process_index);
             } else if (queue_index != LOWEST_PRIORITY_QUEUE) {
                 int* lower_priority_queue = queues[queue_index + 1];
-                remove_process_from_queue(queue, process_index);
-                add_process_to_queue(lower_priority_queue, process_id);
+
+                if (try_add_process_to_queue(lower_priority_queue, process_id) != -1) {
+                    remove_process_from_queue(queue, process_index);
+                }
             }
 
             release(&process->lock);
@@ -96,7 +105,7 @@ int queues_contain(int (*queues)[QUEUE_LENGTH], int process_id)
     return 0;
 };
 
-int queue_contains(int* queue, int process_id)
+int try_get_process_index_in_queue(int* queue, int process_id)
 {
     for (int i = 0; i < QUEUE_LENGTH; i++) {
         int other_process_id = queue[i];
@@ -109,7 +118,7 @@ int queue_contains(int* queue, int process_id)
     return -1;
 }
 
-int add_process_to_queue(int* queue, int process_id)
+int try_add_process_to_queue(int* queue, int process_id)
 {
     for (int i = 0; i < QUEUE_LENGTH; i++) {
         if (queue[i] == UNUSED_PROCESS) {
@@ -138,7 +147,7 @@ void move_all_processes_to_highest_priority(int (*queues)[QUEUE_LENGTH])
 
             if (process_id != UNUSED_PROCESS) {
                 remove_process_from_queue(queue, process_index);
-                add_process_to_queue(highest_priority_queue, process_id);
+                try_add_process_to_queue(highest_priority_queue, process_id);
             }
         }
     }

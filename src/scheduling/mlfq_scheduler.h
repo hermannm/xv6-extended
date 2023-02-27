@@ -3,13 +3,7 @@
 
 #include "../../lib/kernel/param.h"
 
-#define QUEUE_COUNT 3
 #define QUEUE_LENGTH NPROC
-
-#define HIGHEST_PRIORITY_QUEUE 0
-#define LOWEST_PRIORITY_QUEUE QUEUE_COUNT - 1
-
-#define UNUSED_PROCESS 0
 
 /**
  * Multi-Level Feedback Queue scheduler implementation.
@@ -27,14 +21,14 @@ int queues_contain(int (*queues)[QUEUE_LENGTH], int process_id);
  * Returns the index in the given queue where the given process ID is,
  * or -1 if it is not in the queue.
  */
-int queue_contains(int* queue, int process_id);
+int try_get_process_index_in_queue(int* queue, int process_id);
 
 /**
  * Inserts the given process ID in the first unused slot in the queue.
  * Returns the index where the process ID was inserted.
  * If the queue is full, returns -1.
  */
-int add_process_to_queue(int* queue, int process_id);
+int try_add_process_to_queue(int* queue, int process_id);
 
 /**
  * Sets the process ID slot at the given process index in the queue to unused.
