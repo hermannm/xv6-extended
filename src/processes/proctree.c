@@ -20,7 +20,7 @@
  */
 void print_process_with_children(
     const struct process_info proc, const struct process_list proc_list,
-    struct int_list* const printed_ids, const int depth
+    struct int_list *const printed_ids, const int depth
 )
 {
     if (int_list_contains(printed_ids, proc.id)) {
@@ -58,7 +58,7 @@ void print_process_with_children(
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     const struct get_processes_result res = get_processes();
     if (res.error == GET_PROCESSES_SYSCALL_ERROR) {

@@ -19,15 +19,15 @@ struct pipe {
     int writeopen; // write fd is still open
 };
 
-int pipealloc(struct file** f0, struct file** f1)
+int pipealloc(struct file **f0, struct file **f1)
 {
-    struct pipe* pi;
+    struct pipe *pi;
 
     pi = 0;
     *f0 = *f1 = 0;
     if ((*f0 = filealloc()) == 0 || (*f1 = filealloc()) == 0)
         goto bad;
-    if ((pi = (struct pipe*)kalloc()) == 0)
+    if ((pi = (struct pipe *)kalloc()) == 0)
         goto bad;
     pi->readopen = 1;
     pi->writeopen = 1;
@@ -46,7 +46,7 @@ int pipealloc(struct file** f0, struct file** f1)
 
 bad:
     if (pi)
-        kfree((char*)pi);
+        kfree((char *)pi);
     if (*f0)
         fileclose(*f0);
     if (*f1)
@@ -54,7 +54,7 @@ bad:
     return -1;
 }
 
-void pipeclose(struct pipe* pi, int writable)
+void pipeclose(struct pipe *pi, int writable)
 {
     acquire(&pi->lock);
     if (writable) {
@@ -66,15 +66,15 @@ void pipeclose(struct pipe* pi, int writable)
     }
     if (pi->readopen == 0 && pi->writeopen == 0) {
         release(&pi->lock);
-        kfree((char*)pi);
+        kfree((char *)pi);
     } else
         release(&pi->lock);
 }
 
-int pipewrite(struct pipe* pi, uint64 addr, int n)
+int pipewrite(struct pipe *pi, uint64 addr, int n)
 {
     int i = 0;
-    struct proc* pr = myproc();
+    struct proc *pr = myproc();
 
     acquire(&pi->lock);
     while (i < n) {
@@ -99,10 +99,10 @@ int pipewrite(struct pipe* pi, uint64 addr, int n)
     return i;
 }
 
-int piperead(struct pipe* pi, uint64 addr, int n)
+int piperead(struct pipe *pi, uint64 addr, int n)
 {
     int i;
-    struct proc* pr = myproc();
+    struct proc *pr = myproc();
     char ch;
 
     acquire(&pi->lock);

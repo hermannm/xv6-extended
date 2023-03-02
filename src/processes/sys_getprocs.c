@@ -14,7 +14,7 @@ uint64 sys_getprocs(void)
 {
     const struct getprocs_args args = get_getprocs_args();
 
-    const struct proc* const calling_proc = myproc();
+    const struct proc *const calling_proc = myproc();
     const pagetable_t calling_proc_pagetable = calling_proc->pagetable;
 
     // wait_lock must be acquired to access proc.parent
@@ -29,7 +29,7 @@ uint64 sys_getprocs(void)
 
         // `proc + proc_index` is done instead of `proc[proc_index]` in order to not dereference the
         // pointer, as that would copy the process's lock, which invalidates it.
-        struct proc* const current_proc = proc + proc_index;
+        struct proc *const current_proc = proc + proc_index;
 
         acquire(&current_proc->lock);
 
@@ -44,7 +44,7 @@ uint64 sys_getprocs(void)
         };
         strncpy(proc_info.name, current_proc->name, MAX_PROCESS_NAME_LENGTH);
 
-        struct proc* const parent_proc = current_proc->parent;
+        struct proc *const parent_proc = current_proc->parent;
         if (parent_proc) {
             acquire(&parent_proc->lock);
             proc_info.parent_id = parent_proc->pid;
@@ -59,7 +59,7 @@ uint64 sys_getprocs(void)
             args.proc_info_array_address + sizeof(struct process_info) * proc_index;
 
         const int err_code = copyout(
-            calling_proc_pagetable, target_address, (char*)&proc_info, sizeof(struct process_info)
+            calling_proc_pagetable, target_address, (char *)&proc_info, sizeof(struct process_info)
         );
         if (err_code == -1) {
             release(&wait_lock);

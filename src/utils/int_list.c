@@ -14,12 +14,12 @@ struct int_list create_int_list(const uint initial_capacity)
     return list;
 }
 
-void destroy_int_list(struct int_list* list)
+void destroy_int_list(struct int_list *list)
 {
     free(list->array);
 }
 
-void append_to_int_list(struct int_list* const list, const int item)
+void append_to_int_list(struct int_list *const list, const int item)
 {
     if (list->length >= list->capacity) {
         const uint old_capacity = list->capacity;
@@ -35,7 +35,7 @@ void append_to_int_list(struct int_list* const list, const int item)
     list->length++;
 }
 
-int int_list_contains(const struct int_list* const list, const int item)
+int int_list_contains(const struct int_list *const list, const int item)
 {
     for (int i = 0; i < list->length; i++) {
         if (list->array[i] == item) {

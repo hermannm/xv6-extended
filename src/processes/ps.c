@@ -6,7 +6,7 @@
 #include "../../lib/user/user.h"
 #include "process_list.h"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     const struct get_processes_result res = get_processes();
     if (res.error == GET_PROCESSES_SYSCALL_ERROR) {

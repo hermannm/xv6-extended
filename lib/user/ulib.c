@@ -13,9 +13,9 @@ void _main()
     exit(0);
 }
 
-char* strcpy(char* s, const char* t)
+char *strcpy(char *s, const char *t)
 {
-    char* os;
+    char *os;
 
     os = s;
     while ((*s++ = *t++) != 0)
@@ -23,14 +23,14 @@ char* strcpy(char* s, const char* t)
     return os;
 }
 
-int strcmp(const char* p, const char* q)
+int strcmp(const char *p, const char *q)
 {
     while (*p && *p == *q)
         p++, q++;
     return (uchar)*p - (uchar)*q;
 }
 
-uint strlen(const char* s)
+uint strlen(const char *s)
 {
     int n;
 
@@ -39,9 +39,9 @@ uint strlen(const char* s)
     return n;
 }
 
-void* memset(void* dst, int c, uint n)
+void *memset(void *dst, int c, uint n)
 {
-    char* cdst = (char*)dst;
+    char *cdst = (char *)dst;
     int i;
     for (i = 0; i < n; i++) {
         cdst[i] = c;
@@ -49,15 +49,15 @@ void* memset(void* dst, int c, uint n)
     return dst;
 }
 
-char* strchr(const char* s, char c)
+char *strchr(const char *s, char c)
 {
     for (; *s; s++)
         if (*s == c)
-            return (char*)s;
+            return (char *)s;
     return 0;
 }
 
-char* gets(char* buf, int max)
+char *gets(char *buf, int max)
 {
     int i, cc;
     char c;
@@ -74,7 +74,7 @@ char* gets(char* buf, int max)
     return buf;
 }
 
-int stat(const char* n, struct stat* st)
+int stat(const char *n, struct stat *st)
 {
     int fd;
     int r;
@@ -87,7 +87,7 @@ int stat(const char* n, struct stat* st)
     return r;
 }
 
-int atoi(const char* s)
+int atoi(const char *s)
 {
     int n;
 
@@ -97,10 +97,10 @@ int atoi(const char* s)
     return n;
 }
 
-void* memmove(void* vdst, const void* vsrc, int n)
+void *memmove(void *vdst, const void *vsrc, int n)
 {
-    char* dst;
-    const char* src;
+    char *dst;
+    const char *src;
 
     dst = vdst;
     src = vsrc;
@@ -116,7 +116,7 @@ void* memmove(void* vdst, const void* vsrc, int n)
     return vdst;
 }
 
-int memcmp(const void* s1, const void* s2, uint n)
+int memcmp(const void *s1, const void *s2, uint n)
 {
     const char *p1 = s1, *p2 = s2;
     while (n-- > 0) {
@@ -129,7 +129,7 @@ int memcmp(const void* s1, const void* s2, uint n)
     return 0;
 }
 
-void* memcpy(void* dst, const void* src, uint n)
+void *memcpy(void *dst, const void *src, uint n)
 {
     return memmove(dst, src, n);
 }

@@ -13,7 +13,7 @@
 #include "user.h"
 
 // from FreeBSD.
-int do_rand(unsigned long* ctx)
+int do_rand(unsigned long *ctx)
 {
     /*
      * Compute x = (7^5 * x) mod (2^31 - 1)
@@ -49,7 +49,7 @@ void go(int which_child)
 {
     int fd = -1;
     static char buf[999];
-    char* break0 = sbrk(0);
+    char *break0 = sbrk(0);
     uint64 iters = 0;
 
     mkdir("grindir");
@@ -239,7 +239,7 @@ void go(int which_child)
                     exit(1);
                 }
                 close(aa[1]);
-                char* args[3] = {"echo", "hi", 0};
+                char *args[3] = {"echo", "hi", 0};
                 exec("grindir/../echo", args);
                 fprintf(2, "grind: echo: not found\n");
                 exit(2);
@@ -263,7 +263,7 @@ void go(int which_child)
                     exit(5);
                 }
                 close(bb[1]);
-                char* args[2] = {"cat", 0};
+                char *args[2] = {"cat", 0};
                 exec("/cat", args);
                 fprintf(2, "grind: cat: not found\n");
                 exit(6);

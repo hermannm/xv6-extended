@@ -1,7 +1,7 @@
 #include "../kernel/types.h"
 #include "user.h"
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     if (argc < 2) {
         // no further program specified - can't time nothing

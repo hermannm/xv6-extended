@@ -7,7 +7,7 @@
 #include "spinlock.h"
 #include "types.h"
 
-static int loadseg(pde_t*, uint64, struct inode*, uint, uint);
+static int loadseg(pde_t *, uint64, struct inode *, uint, uint);
 
 int flags2perm(int flags)
 {
@@ -19,16 +19,16 @@ int flags2perm(int flags)
     return perm;
 }
 
-int exec(char* path, char** argv)
+int exec(char *path, char **argv)
 {
     char *s, *last;
     int i, off;
     uint64 argc, sz = 0, sp, ustack[MAXARG], stackbase;
     struct elfhdr elf;
-    struct inode* ip;
+    struct inode *ip;
     struct proghdr ph;
     pagetable_t pagetable = 0, oldpagetable;
-    struct proc* p = myproc();
+    struct proc *p = myproc();
 
     begin_op();
 
@@ -105,7 +105,7 @@ int exec(char* path, char** argv)
     sp -= sp % 16;
     if (sp < stackbase)
         goto bad;
-    if (copyout(pagetable, sp, (char*)ustack, (argc + 1) * sizeof(uint64)) < 0)
+    if (copyout(pagetable, sp, (char *)ustack, (argc + 1) * sizeof(uint64)) < 0)
         goto bad;
 
     // arguments to user main(argc, argv)
@@ -143,7 +143,7 @@ bad:
 // va must be page-aligned
 // and the pages from va to va+sz must already be mapped.
 // Returns 0 on success, -1 on failure.
-static int loadseg(pagetable_t pagetable, uint64 va, struct inode* ip, uint offset, uint sz)
+static int loadseg(pagetable_t pagetable, uint64 va, struct inode *ip, uint offset, uint sz)
 {
     uint i, n;
     uint64 pa;

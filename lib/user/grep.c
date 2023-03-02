@@ -5,9 +5,9 @@
 #include "user.h"
 
 char buf[1024];
-int match(char*, char*);
+int match(char *, char *);
 
-void grep(char* pattern, int fd)
+void grep(char *pattern, int fd)
 {
     int n, m;
     char *p, *q;
@@ -32,10 +32,10 @@ void grep(char* pattern, int fd)
     }
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int fd, i;
-    char* pattern;
+    char *pattern;
 
     if (argc <= 1) {
         fprintf(2, "usage: grep pattern [file ...]\n");
@@ -63,10 +63,10 @@ int main(int argc, char* argv[])
 // The Practice of Programming, Chapter 9, or
 // https://www.cs.princeton.edu/courses/archive/spr09/cos333/beautiful.html
 
-int matchhere(char*, char*);
-int matchstar(int, char*, char*);
+int matchhere(char *, char *);
+int matchstar(int, char *, char *);
 
-int match(char* re, char* text)
+int match(char *re, char *text)
 {
     if (re[0] == '^')
         return matchhere(re + 1, text);
@@ -78,7 +78,7 @@ int match(char* re, char* text)
 }
 
 // matchhere: search for re at beginning of text
-int matchhere(char* re, char* text)
+int matchhere(char *re, char *text)
 {
     if (re[0] == '\0')
         return 1;
@@ -92,7 +92,7 @@ int matchhere(char* re, char* text)
 }
 
 // matchstar: search for c*re at beginning of text
-int matchstar(int c, char* re, char* text)
+int matchstar(int c, char *re, char *text)
 {
     do { // a * matches zero or more instances
         if (matchhere(re, text))

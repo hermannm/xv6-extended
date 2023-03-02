@@ -42,12 +42,12 @@ struct get_processes_result get_processes()
     return res;
 }
 
-void destroy_process_list(struct process_list* const proc_list)
+void destroy_process_list(struct process_list *const proc_list)
 {
     free(proc_list->array);
 }
 
-void increase_process_list_capacity(struct process_list* const proc_list, const uint extra_capacity)
+void increase_process_list_capacity(struct process_list *const proc_list, const uint extra_capacity)
 {
     const uint old_capacity = proc_list->capacity;
     const uint new_capacity = old_capacity + extra_capacity;

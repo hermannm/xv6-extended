@@ -23,7 +23,7 @@
 #define NINODES 200
 
 struct path_to_strip {
-    char* prefix;
+    char *prefix;
     int prefix_length;
 };
 
@@ -50,19 +50,19 @@ uint freeinode = 1;
 uint freeblock;
 
 void balloc(int);
-void wsect(uint, void*);
-void winode(uint, struct dinode*);
-void rinode(uint inum, struct dinode* ip);
-void rsect(uint sec, void* buf);
+void wsect(uint, void *);
+void winode(uint, struct dinode *);
+void rinode(uint inum, struct dinode *ip);
+void rsect(uint sec, void *buf);
 uint ialloc(ushort type);
-void iappend(uint inum, void* p, int n);
-void die(const char*);
+void iappend(uint inum, void *p, int n);
+void die(const char *);
 
 // convert to riscv byte order
 ushort xshort(ushort x)
 {
     ushort y;
-    uchar* a = (uchar*)&y;
+    uchar *a = (uchar *)&y;
     a[0] = x;
     a[1] = x >> 8;
     return y;
@@ -71,7 +71,7 @@ ushort xshort(ushort x)
 uint xint(uint x)
 {
     uint y;
-    uchar* a = (uchar*)&y;
+    uchar *a = (uchar *)&y;
     a[0] = x;
     a[1] = x >> 8;
     a[2] = x >> 16;
@@ -79,7 +79,7 @@ uint xint(uint x)
     return y;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int i, cc, fd;
     uint rootino, inum, off;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
 
     for (i = 2; i < argc; i++) {
         // strips path prefixes
-        char* shortname;
+        char *shortname;
         for (int j = 0; j < PATHS_TO_STRIP_COUNT; j++) {
             struct path_to_strip path = paths_to_strip[j];
 
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
     exit(0);
 }
 
-void wsect(uint sec, void* buf)
+void wsect(uint sec, void *buf)
 {
     if (lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE)
         die("lseek");
@@ -204,32 +204,32 @@ void wsect(uint sec, void* buf)
         die("write");
 }
 
-void winode(uint inum, struct dinode* ip)
+void winode(uint inum, struct dinode *ip)
 {
     char buf[BSIZE];
     uint bn;
-    struct dinode* dip;
+    struct dinode *dip;
 
     bn = IBLOCK(inum, sb);
     rsect(bn, buf);
-    dip = ((struct dinode*)buf) + (inum % IPB);
+    dip = ((struct dinode *)buf) + (inum % IPB);
     *dip = *ip;
     wsect(bn, buf);
 }
 
-void rinode(uint inum, struct dinode* ip)
+void rinode(uint inum, struct dinode *ip)
 {
     char buf[BSIZE];
     uint bn;
-    struct dinode* dip;
+    struct dinode *dip;
 
     bn = IBLOCK(inum, sb);
     rsect(bn, buf);
-    dip = ((struct dinode*)buf) + (inum % IPB);
+    dip = ((struct dinode *)buf) + (inum % IPB);
     *ip = *dip;
 }
 
-void rsect(uint sec, void* buf)
+void rsect(uint sec, void *buf)
 {
     if (lseek(fsfd, sec * BSIZE, 0) != sec * BSIZE)
         die("lseek");
@@ -267,9 +267,9 @@ void balloc(int used)
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
-void iappend(uint inum, void* xp, int n)
+void iappend(uint inum, void *xp, int n)
 {
-    char* p = (char*)xp;
+    char *p = (char *)xp;
     uint fbn, off, n1;
     struct dinode din;
     char buf[BSIZE];
@@ -291,10 +291,10 @@ void iappend(uint inum, void* xp, int n)
             if (xint(din.addrs[NDIRECT]) == 0) {
                 din.addrs[NDIRECT] = xint(freeblock++);
             }
-            rsect(xint(din.addrs[NDIRECT]), (char*)indirect);
+            rsect(xint(din.addrs[NDIRECT]), (char *)indirect);
             if (indirect[fbn - NDIRECT] == 0) {
                 indirect[fbn - NDIRECT] = xint(freeblock++);
-                wsect(xint(din.addrs[NDIRECT]), (char*)indirect);
+                wsect(xint(din.addrs[NDIRECT]), (char *)indirect);
             }
             x = xint(indirect[fbn - NDIRECT]);
         }
@@ -310,7 +310,7 @@ void iappend(uint inum, void* xp, int n)
     winode(inum, &din);
 }
 
-void die(const char* s)
+void die(const char *s)
 {
     perror(s);
     exit(1);

@@ -58,11 +58,11 @@ static void printptr(uint64 x)
 }
 
 // Print to the console. only understands %d, %x, %p, %s.
-void printf(char* fmt, ...)
+void printf(char *fmt, ...)
 {
     va_list ap;
     int i, c, locking;
-    char* s;
+    char *s;
 
     locking = pr.locking;
     if (locking)
@@ -91,7 +91,7 @@ void printf(char* fmt, ...)
             printptr(va_arg(ap, uint64));
             break;
         case 's':
-            if ((s = va_arg(ap, char*)) == 0)
+            if ((s = va_arg(ap, char *)) == 0)
                 s = "(null)";
             for (; *s; s++)
                 consputc(*s);
@@ -112,7 +112,7 @@ void printf(char* fmt, ...)
         release(&pr.lock);
 }
 
-void panic(char* s)
+void panic(char *s)
 {
     pr.locking = 0;
     printf("panic: ");

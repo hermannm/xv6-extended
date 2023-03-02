@@ -8,7 +8,7 @@
  * A dynamically sized list of process info structs.
  */
 struct process_list {
-    struct process_info* array;
+    struct process_info *array;
     uint length;
     uint capacity;
 };
@@ -37,11 +37,11 @@ struct get_processes_result get_processes();
 /**
  * Frees the memory allocated for the given process list. List must not be used after this call.
  */
-void destroy_process_list(struct process_list* proc_list);
+void destroy_process_list(struct process_list *proc_list);
 
 /**
  * Allocates memory for `extra_capacity` more `process_info` structs in the given process list.
  */
-void increase_process_list_capacity(struct process_list* proc_list, uint extra_capacity);
+void increase_process_list_capacity(struct process_list *proc_list, uint extra_capacity);
 
 #endif // PROCESS_LIST_H

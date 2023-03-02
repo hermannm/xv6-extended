@@ -6,4 +6,4 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   AfterControlStatement: MultiLine
   AfterFunction: true
-PointerAlignment: Left
+PointerAlignment: Right

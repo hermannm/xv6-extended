@@ -6,7 +6,7 @@
 
 #include "../../lib/user/user.h"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     if (argc == 1) {
         printf("Hello World\n");

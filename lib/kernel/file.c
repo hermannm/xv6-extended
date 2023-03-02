@@ -25,9 +25,9 @@ void fileinit(void)
 }
 
 // Allocate a file structure.
-struct file* filealloc(void)
+struct file *filealloc(void)
 {
-    struct file* f;
+    struct file *f;
 
     acquire(&ftable.lock);
     for (f = ftable.file; f < ftable.file + NFILE; f++) {
@@ -42,7 +42,7 @@ struct file* filealloc(void)
 }
 
 // Increment ref count for file f.
-struct file* filedup(struct file* f)
+struct file *filedup(struct file *f)
 {
     acquire(&ftable.lock);
     if (f->ref < 1)
@@ -53,7 +53,7 @@ struct file* filedup(struct file* f)
 }
 
 // Close file f.  (Decrement ref count, close when reaches 0.)
-void fileclose(struct file* f)
+void fileclose(struct file *f)
 {
     struct file ff;
 
@@ -80,16 +80,16 @@ void fileclose(struct file* f)
 
 // Get metadata about file f.
 // addr is a user virtual address, pointing to a struct stat.
-int filestat(struct file* f, uint64 addr)
+int filestat(struct file *f, uint64 addr)
 {
-    struct proc* p = myproc();
+    struct proc *p = myproc();
     struct stat st;
 
     if (f->type == FD_INODE || f->type == FD_DEVICE) {
         ilock(f->ip);
         stati(f->ip, &st);
         iunlock(f->ip);
-        if (copyout(p->pagetable, addr, (char*)&st, sizeof(st)) < 0)
+        if (copyout(p->pagetable, addr, (char *)&st, sizeof(st)) < 0)
             return -1;
         return 0;
     }
@@ -98,7 +98,7 @@ int filestat(struct file* f, uint64 addr)
 
 // Read from file f.
 // addr is a user virtual address.
-int fileread(struct file* f, uint64 addr, int n)
+int fileread(struct file *f, uint64 addr, int n)
 {
     int r = 0;
 
@@ -125,7 +125,7 @@ int fileread(struct file* f, uint64 addr, int n)
 
 // Write to file f.
 // addr is a user virtual address.
-int filewrite(struct file* f, uint64 addr, int n)
+int filewrite(struct file *f, uint64 addr, int n)
 {
     int r, ret = 0;
 

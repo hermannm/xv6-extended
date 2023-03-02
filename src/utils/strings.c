@@ -2,7 +2,7 @@
 #include "../../lib/kernel/types.h"
 #include "../../lib/user/user.h"
 
-uint strnlen(const char* const string, const uint max_length)
+uint strnlen(const char *const string, const uint max_length)
 {
     int length = 0;
 
@@ -17,7 +17,7 @@ uint strnlen(const char* const string, const uint max_length)
     return length;
 }
 
-char* strncpy(char* const target_string, const char* const source_string, const uint max_length)
+char *strncpy(char *const target_string, const char *const source_string, const uint max_length)
 {
     for (int i = 0; i < max_length; i++) {
         char source_char = source_string[i];
@@ -32,7 +32,7 @@ char* strncpy(char* const target_string, const char* const source_string, const 
     return target_string;
 }
 
-char* strncat(char* const target_string, const char* const source_string, const uint max_length)
+char *strncat(char *const target_string, const char *const source_string, const uint max_length)
 {
     uint target_length = strlen(target_string);
     uint source_length = strlen(source_string);

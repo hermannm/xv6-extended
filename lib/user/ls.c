@@ -3,10 +3,10 @@
 #include "../kernel/types.h"
 #include "user.h"
 
-char* fmtname(char* path)
+char *fmtname(char *path)
 {
     static char buf[DIRSIZ + 1];
-    char* p;
+    char *p;
 
     // Find first character after last slash.
     for (p = path + strlen(path); p >= path && *p != '/'; p--)
@@ -21,7 +21,7 @@ char* fmtname(char* path)
     return buf;
 }
 
-void ls(char* path)
+void ls(char *path)
 {
     char buf[512], *p;
     int fd;
@@ -69,7 +69,7 @@ void ls(char* path)
     close(fd);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     int i;
 

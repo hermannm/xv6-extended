@@ -37,7 +37,7 @@ enum getprocs_error {
  * - the number of `process_info` structs copied into `proc_info_array_address`
  *   (if this number is less than `procs_to_get`, the syscall has reached the last process)
  */
-int getprocs(int procs_to_get, int offset, struct process_info* proc_info_array);
+int getprocs(int procs_to_get, int offset, struct process_info *proc_info_array);
 
 /**
  * Implementation of the `getprocs` syscall. The function signature here is required for syscalls,

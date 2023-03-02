@@ -42,7 +42,7 @@ void usertrap(void)
     // since we're now in the kernel.
     w_stvec((uint64)kernelvec);
 
-    struct proc* p = myproc();
+    struct proc *p = myproc();
 
     // save user program counter.
     p->trapframe->epc = r_sepc();
@@ -85,7 +85,7 @@ void usertrap(void)
 //
 void usertrapret(void)
 {
-    struct proc* p = myproc();
+    struct proc *p = myproc();
 
     // we're about to switch the destination of traps from
     // kerneltrap() to usertrap(), so turn off interrupts until

@@ -9,7 +9,7 @@
 #include "../kernel/types.h"
 #include "user.h"
 
-char* argv[] = {"sh", 0};
+char *argv[] = {"sh", 0};
 
 int main(void)
 {
@@ -38,7 +38,7 @@ int main(void)
         for (;;) {
             // this call to wait() returns if the shell exits,
             // or if a parentless process exits.
-            wpid = wait((int*)0);
+            wpid = wait((int *)0);
             if (wpid == pid) {
                 // the shell exited; restart it.
                 break;

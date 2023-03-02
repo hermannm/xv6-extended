@@ -1,4 +1,5 @@
-/* //
+/*
+//
 // ramdisk that uses the disk image loaded by qemu -initrd fs.img
 //
 
@@ -18,7 +19,7 @@ void ramdiskinit(void)
 
 // If B_DIRTY is set, write buf to disk, clear B_DIRTY, set B_VALID.
 // Else if B_VALID is not set, read buf from disk, set B_VALID.
-void ramdiskrw(struct buf* b)
+void ramdiskrw(struct buf *b)
 {
     if (!holdingsleep(&b->lock))
         panic("ramdiskrw: buf not locked");
@@ -29,7 +30,7 @@ void ramdiskrw(struct buf* b)
         panic("ramdiskrw: blockno too big");
 
     uint64 diskaddr = b->blockno * BSIZE;
-    char* addr = (char*)RAMDISK + diskaddr;
+    char *addr = (char *)RAMDISK + diskaddr;
 
     if (b->flags & B_DIRTY) {
         // write
@@ -41,4 +42,4 @@ void ramdiskrw(struct buf* b)
         b->flags |= B_VALID;
     }
 }
- */
+*/
