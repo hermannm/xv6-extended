@@ -22,7 +22,7 @@ void mlfq_scheduler(void)
     // Number of times the scheduler has run since the last priority reset.
     static int scheduler_iterations = 0;
 
-    struct cpu* cpu = mycpu();
+    struct cpu* const cpu = mycpu();
     cpu->proc = 0;
 
     // Allows devices to interrupt.
@@ -37,8 +37,8 @@ void mlfq_scheduler(void)
                 continue;
             }
 
-            int* queue = queues[queue_index];
-            int process_id = process->pid;
+            int* const queue = queues[queue_index];
+            const int process_id = process->pid;
 
             int process_index;
             if (queue_index == HIGHEST_PRIORITY_QUEUE && !queues_contain(queues, process_id)) {
@@ -88,13 +88,13 @@ void mlfq_scheduler(void)
     }
 }
 
-int queues_contain(int (*queues)[QUEUE_LENGTH], int process_id)
+int queues_contain(const int (*const queues)[QUEUE_LENGTH], const int process_id)
 {
     for (int queue_index = 0; queue_index < QUEUE_COUNT; queue_index++) {
-        int* queue = queues[queue_index];
+        const int* const queue = queues[queue_index];
 
         for (int process_index = 0; process_index < QUEUE_LENGTH; process_index++) {
-            int other_process_id = queue[process_index];
+            const int other_process_id = queue[process_index];
 
             if (other_process_id != UNUSED_PROCESS && other_process_id == process_id) {
                 return 1;
@@ -105,10 +105,10 @@ int queues_contain(int (*queues)[QUEUE_LENGTH], int process_id)
     return 0;
 };
 
-int try_get_process_index_in_queue(int* queue, int process_id)
+int try_get_process_index_in_queue(const int* const queue, const int process_id)
 {
     for (int i = 0; i < QUEUE_LENGTH; i++) {
-        int other_process_id = queue[i];
+        const int other_process_id = queue[i];
 
         if (other_process_id != UNUSED_PROCESS && other_process_id == process_id) {
             return i;
@@ -118,7 +118,7 @@ int try_get_process_index_in_queue(int* queue, int process_id)
     return -1;
 }
 
-int try_add_process_to_queue(int* queue, int process_id)
+int try_add_process_to_queue(int* const queue, const int process_id)
 {
     for (int i = 0; i < QUEUE_LENGTH; i++) {
         if (queue[i] == UNUSED_PROCESS) {
@@ -130,24 +130,25 @@ int try_add_process_to_queue(int* queue, int process_id)
     return -1;
 };
 
-void remove_process_from_queue(int* queue, int process_index)
+void remove_process_from_queue(int* const queue, const int process_index)
 {
     queue[process_index] = UNUSED_PROCESS;
 }
 
-void move_all_processes_to_highest_priority(int (*queues)[QUEUE_LENGTH])
+void move_all_processes_to_highest_priority(int (*const queues)[QUEUE_LENGTH])
 {
-    int* highest_priority_queue = queues[HIGHEST_PRIORITY_QUEUE];
+    int* const highest_priority_queue = queues[HIGHEST_PRIORITY_QUEUE];
 
     for (int queue_index = HIGHEST_PRIORITY_QUEUE + 1; queue_index < QUEUE_COUNT; queue_index++) {
-        int* queue = queues[queue_index];
+        int* const queue = queues[queue_index];
 
         for (int process_index = 0; process_index < QUEUE_LENGTH; queue_index++) {
-            int process_id = queue[process_index];
+            const int process_id = queue[process_index];
 
             if (process_id != UNUSED_PROCESS) {
-                remove_process_from_queue(queue, process_index);
-                try_add_process_to_queue(highest_priority_queue, process_id);
+                if (try_add_process_to_queue(highest_priority_queue, process_id) != -1) {
+                    remove_process_from_queue(queue, process_index);
+                }
             }
         }
     }

@@ -3,7 +3,7 @@
 #include "../../lib/user/user.h"
 #include "realloc.h"
 
-struct int_list create_int_list(uint initial_capacity)
+struct int_list create_int_list(const uint initial_capacity)
 {
     struct int_list list = {
         .array = malloc(initial_capacity * sizeof(struct int_list)),
@@ -19,10 +19,10 @@ void destroy_int_list(struct int_list* list)
     free(list->array);
 }
 
-void append_to_int_list(struct int_list* list, int item)
+void append_to_int_list(struct int_list* const list, const int item)
 {
     if (list->length >= list->capacity) {
-        uint old_capacity = list->capacity;
+        const uint old_capacity = list->capacity;
         list->capacity *= 2;
 
         list->array = realloc(
@@ -35,7 +35,7 @@ void append_to_int_list(struct int_list* list, int item)
     list->length++;
 }
 
-int int_list_contains(struct int_list* list, int item)
+int int_list_contains(const struct int_list* const list, const int item)
 {
     for (int i = 0; i < list->length; i++) {
         if (list->array[i] == item) {

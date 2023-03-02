@@ -34,6 +34,6 @@ void append_to_int_list(struct int_list* list, int item);
  * Goes through the list, and returns 1 if any integer in the list matches the given item, else
  * returns 0.
  */
-int int_list_contains(struct int_list* list, int item);
+int int_list_contains(const struct int_list* list, int item);
 
 #endif // INT_LIST_H

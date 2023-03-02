@@ -15,13 +15,13 @@ void mlfq_scheduler(void);
 /**
  * Returns 1 if the given array of queues contains the given process ID, otherwise 0.
  */
-int queues_contain(int (*queues)[QUEUE_LENGTH], int process_id);
+int queues_contain(const int (*queues)[QUEUE_LENGTH], int process_id);
 
 /**
  * Returns the index in the given queue where the given process ID is,
  * or -1 if it is not in the queue.
  */
-int try_get_process_index_in_queue(int* queue, int process_id);
+int try_get_process_index_in_queue(const int* queue, int process_id);
 
 /**
  * Inserts the given process ID in the first unused slot in the queue.

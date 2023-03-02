@@ -22,14 +22,14 @@ struct get_processes_result get_processes()
 
     int offset = 0;
     while (1) {
-        int return_code = getprocs(BATCH_SIZE, offset, res.processes.array);
+        const int return_code = getprocs(BATCH_SIZE, offset, res.processes.array);
         if (return_code == GETPROCS_MEMORY_COPY_ERROR) {
             res.error = GET_PROCESSES_SYSCALL_ERROR;
             destroy_process_list(&res.processes);
             return res;
         }
 
-        int procs_added = return_code;
+        const int procs_added = return_code;
         res.processes.length += procs_added;
         if (procs_added < BATCH_SIZE) {
             break;
@@ -42,15 +42,15 @@ struct get_processes_result get_processes()
     return res;
 }
 
-void destroy_process_list(struct process_list* proc_list)
+void destroy_process_list(struct process_list* const proc_list)
 {
     free(proc_list->array);
 }
 
-void increase_process_list_capacity(struct process_list* proc_list, uint extra_capacity)
+void increase_process_list_capacity(struct process_list* const proc_list, const uint extra_capacity)
 {
-    uint old_capacity = proc_list->capacity;
-    uint new_capacity = old_capacity + extra_capacity;
+    const uint old_capacity = proc_list->capacity;
+    const uint new_capacity = old_capacity + extra_capacity;
 
     proc_list->array = realloc(
         proc_list->array, old_capacity * sizeof(struct process_info),

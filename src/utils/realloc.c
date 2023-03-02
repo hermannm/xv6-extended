@@ -1,7 +1,7 @@
 #include "../../lib/kernel/types.h"
 #include "../../lib/user/user.h"
 
-void* realloc(void* old_pointer, uint old_size, uint new_size)
+void* realloc(void* old_pointer, const uint old_size, const uint new_size)
 {
     void* new_pointer = malloc(new_size);
 
