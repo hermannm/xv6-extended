@@ -13,6 +13,12 @@ struct sleeplock;
 struct stat;
 struct superblock;
 
+#define assert(cond)                                                                               \
+    if (!(cond)) {                                                                                 \
+        printf("%s@%s:%d\n", __FILE__, __func__, __LINE__);                                        \
+        panic("assert failed");                                                                    \
+    }
+
 // bio.c
 void binit(void);
 struct buf *bread(uint, uint);
@@ -61,7 +67,7 @@ void itrunc(struct inode *);
 // ramdisk.c
 /* void ramdiskinit(void);
 void ramdiskintr(void);
-void ramdiskrw(struct buf*); */
+void ramdiskrw(struct buf *); */
 
 // kalloc.c
 void *kalloc(void);
@@ -82,7 +88,7 @@ int pipewrite(struct pipe *, uint64, int);
 
 // printf.c
 void printf(char *, ...);
-void panic(char *) __attribute__((noreturn));
+void panic(char *, ...) __attribute__((noreturn));
 void printfinit(void);
 
 // proc.c

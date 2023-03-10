@@ -450,27 +450,32 @@ void rr_scheduler(void)
     struct cpu *c = mycpu();
 
     c->proc = 0;
-    // Avoid deadlock by ensuring that devices can interrupt.
-    intr_on();
+    for (;;) {
+        // Avoid deadlock by ensuring that devices can interrupt.
+        intr_on();
 
-    for (p = proc; p < &proc[NPROC]; p++) {
-        acquire(&p->lock);
-        if (p->state == RUNNABLE) {
-            // Switch to chosen process.  It is the process's job
-            // to release its lock and then reacquire it
-            // before jumping back to us.
-            p->state = RUNNING;
-            c->proc = p;
-            swtch(&c->context, &p->context);
+        for (p = proc; p < &proc[NPROC]; p++) {
+            acquire(&p->lock);
+            if (p->state == RUNNABLE) {
+                // Switch to chosen process.  It is the process's job
+                // to release its lock and then reacquire it
+                // before jumping back to us.
+                p->state = RUNNING;
+                c->proc = p;
+                swtch(&c->context, &p->context);
+                // check if we are still the right scheduler (or if schedset changed)
+                if (sched_pointer != &rr_scheduler) {
+                    release(&p->lock);
+                    return;
+                }
 
-            // Process is done running for now.
-            // It should have changed its p->state before coming back.
-            c->proc = 0;
+                // Process is done running for now.
+                // It should have changed its p->state before coming back.
+                c->proc = 0;
+            }
+            release(&p->lock);
         }
-        release(&p->lock);
     }
-    // In case a setsched happened, we will switch to the new scheduler after one
-    // Round Robin round has completed.
 }
 
 // Switch to scheduler.  Must hold only p->lock

@@ -70,6 +70,7 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_grind \
 	$(USER_BIN)/_wc \
 	$(USER_BIN)/_zombie \
+	$(USER_BIN)/_cowtest \
 	$(USER_BIN)/_hello \
 	$(USER_BIN)/_ps \
 	$(USER_BIN)/_proctree

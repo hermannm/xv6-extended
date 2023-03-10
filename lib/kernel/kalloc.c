@@ -9,6 +9,9 @@
 #include "spinlock.h"
 #include "types.h"
 
+uint64 MAX_PAGES = 0;
+uint64 FREE_PAGES = 0;
+
 void freerange(void *pa_start, void *pa_end);
 
 extern char end[]; // first address after kernel.
@@ -27,14 +30,16 @@ void kinit()
 {
     initlock(&kmem.lock, "kmem");
     freerange(end, (void *)PHYSTOP);
+    MAX_PAGES = FREE_PAGES;
 }
 
 void freerange(void *pa_start, void *pa_end)
 {
     char *p;
     p = (char *)PGROUNDUP((uint64)pa_start);
-    for (; p + PGSIZE <= (char *)pa_end; p += PGSIZE)
+    for (; p + PGSIZE <= (char *)pa_end; p += PGSIZE) {
         kfree(p);
+    }
 }
 
 // Free the page of physical memory pointed at by pa,
@@ -43,6 +48,9 @@ void freerange(void *pa_start, void *pa_end)
 // initializing the allocator; see kinit above.)
 void kfree(void *pa)
 {
+    if (MAX_PAGES != 0) {
+        assert(FREE_PAGES < MAX_PAGES);
+    }
     struct run *r;
 
     if (((uint64)pa % PGSIZE) != 0 || (char *)pa < end || (uint64)pa >= PHYSTOP)
@@ -56,6 +64,7 @@ void kfree(void *pa)
     acquire(&kmem.lock);
     r->next = kmem.freelist;
     kmem.freelist = r;
+    FREE_PAGES++;
     release(&kmem.lock);
 }
 
@@ -64,6 +73,7 @@ void kfree(void *pa)
 // Returns 0 if the memory cannot be allocated.
 void *kalloc(void)
 {
+    assert(FREE_PAGES > 0);
     struct run *r;
 
     acquire(&kmem.lock);
@@ -72,7 +82,9 @@ void *kalloc(void)
         kmem.freelist = r->next;
     release(&kmem.lock);
 
-    if (r)
+    if (r) {
         memset((char *)r, 5, PGSIZE); // fill with junk
+    }
+    FREE_PAGES--;
     return (void *)r;
 }

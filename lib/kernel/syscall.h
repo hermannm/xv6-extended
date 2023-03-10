@@ -22,4 +22,6 @@
 #define SYS_close 21
 #define SYS_schedls 22
 #define SYS_schedset 23
-#define SYS_getprocs 24
+#define SYS_pfreepages 24
+#define SYS_va2pa 25
+#define SYS_getprocs 26

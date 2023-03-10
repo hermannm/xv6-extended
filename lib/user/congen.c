@@ -25,7 +25,7 @@ void forktest(void)
             break;
     }
 
-    for (unsigned long long i = 0; i < 100; i++) {
+    for (unsigned long long i = 0; i < 1000; i++) {
         if (pid == 0) {
             printf("CHILD %d: %d\n", n, i);
         } else {

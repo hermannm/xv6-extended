@@ -112,7 +112,7 @@ void printf(char *fmt, ...)
         release(&pr.lock);
 }
 
-void panic(char *s)
+void panic(char *s, ...)
 {
     pr.locking = 0;
     printf("panic: ");

@@ -26,6 +26,9 @@ int sleep(int);
 int uptime(void);
 uint64 schedls(void);
 int schedset(int);
+uint64 va2pa(uint64 addr, int pid);
+void pfreepages(void);
+#define print_free_frame_cnt() (pfreepages())
 
 // ulib.c
 int stat(const char *, struct stat *);

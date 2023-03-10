@@ -1,7 +1,17 @@
 from __future__ import print_function
 
-import sys, os, re, time, socket, select, subprocess, errno, shutil, random, string
-from subprocess import check_call, Popen
+import sys
+import os
+import re
+import time
+import socket
+import select
+import subprocess
+import errno
+import shutil
+import random
+import string
+from subprocess import Popen
 from optparse import OptionParser
 
 __all__ = []
@@ -64,11 +74,7 @@ def test(points, title=None, parent=None):
                     "%s: %s"
                     % (
                         title,
-                        (
-                            color("red", "FAIL")
-                            if fail
-                            else color("green", "OK")
-                        ),
+                        (color("red", "FAIL") if fail else color("green", "OK")),
                     ),
                     end=" ",
                 )
@@ -101,10 +107,7 @@ def test(points, title=None, parent=None):
 def end_part(name):
     def show_part():
         global PART_TOTAL, PART_POSSIBLE
-        print(
-            "Part %s score: %d/%d"
-            % (name, TOTAL - PART_TOTAL, POSSIBLE - PART_POSSIBLE)
-        )
+        print("Part %s score: %d/%d" % (name, TOTAL - PART_TOTAL, POSSIBLE - PART_POSSIBLE))
         print()
         PART_TOTAL, PART_POSSIBLE = TOTAL, POSSIBLE
 
@@ -118,9 +121,7 @@ def run_tests():
     # Handle command line
     global options
     parser = OptionParser(usage="usage: %prog [-v] [filters...]")
-    parser.add_option(
-        "-v", "--verbose", action="store_true", help="print commands"
-    )
+    parser.add_option("-v", "--verbose", action="store_true", help="print commands")
     parser.add_option(
         "--color",
         choices=["never", "always", "auto"],
@@ -139,7 +140,7 @@ def run_tests():
     limit = list(map(str.lower, args))
     try:
         for test in TESTS:
-            if not limit or any(l in test.title.lower() for l in limit):
+            if not limit or any(lim in test.title.lower() for lim in limit):
                 test()
         if not limit:
             print("Passed %d out of %d tests" % (TOTAL, POSSIBLE))
@@ -152,9 +153,7 @@ def run_tests():
 def run_grade():
     global options
     parser = OptionParser(usage="usage: %prog [-v] [filters...]")
-    parser.add_option(
-        "-v", "--verbose", action="store_true", help="print commands"
-    )
+    parser.add_option("-v", "--verbose", action="store_true", help="print commands")
     parser.add_option(
         "--color",
         choices=["never", "always", "auto"],
@@ -173,7 +172,7 @@ def run_grade():
     limit = list(map(str.lower, args))
     try:
         for test in TESTS:
-            if not limit or any(l in test.title.lower() for l in limit):
+            if not limit or any(lim in test.title.lower() for lim in limit):
                 test()
         if not limit:
             print("Passed %d out of %d tests" % (TOTAL, POSSIBLE))
@@ -221,19 +220,29 @@ def assert_lines_match(text, *regexps, **kw):
 
     no = assert_lines_match_kw(**kw)
 
+    regexps = [*regexps]
+
     # Check text against regexps
     lines = text.splitlines()
     good = set()
     bad = set()
+    matched_groups = []
     for i, line in enumerate(lines):
-        if any(re.match(r, line) for r in regexps):
+        matches = None
+        for i, r in enumerate(regexps):
+            matches = re.match(r, line)
+            if matches:
+                regexps.pop(i)
+                break
+            matches = None
+        if matches:
             good.add(i)
-            regexps = [r for r in regexps if not re.match(r, line)]
+            matched_groups.extend(matches.groups())
         if any(re.match(r, line) for r in no):
             bad.add(i)
 
     if not regexps and not bad:
-        return
+        return matched_groups
 
     # We failed; construct an informative failure message
     show = set()
@@ -359,9 +368,7 @@ def check_answers(file, n=10):
         with open(file) as f:
             d = f.read().strip()
             if len(d) < n:
-                raise AssertionError(
-                    "%s does not seem to contain enough text" % file
-                )
+                raise AssertionError("%s does not seem to contain enough text" % file)
     except IOError:
         raise AssertionError("Cannot read %s" % file)
 
@@ -417,9 +424,7 @@ QEMU appears to already be running.  Please exit it if possible or use
             )
             (out, _) = p.communicate()
             if p.returncode:
-                raise RuntimeError(
-                    "Failed to get gdbport: make exited with %d" % p.returncode
-                )
+                raise RuntimeError("Failed to get gdbport: make exited with %d" % p.returncode)
             QEMU._GDBPORT = int(out)
         return QEMU._GDBPORT
 
@@ -577,7 +582,7 @@ class Runner:
                 self.__react(self.reactors, 5)
                 self.gdb.close()
                 self.qemu.wait()
-            except:
+            except Exception:
                 print(
                     """\
 Failed to shutdown QEMU.  You might need to 'killall qemu' or
@@ -630,7 +635,14 @@ Failed to shutdown QEMU.  You might need to 'killall qemu' or
         """Shortcut to call assert_lines_match on the most recent QEMU
         output."""
 
-        assert_lines_match(self.qemu.output, *args, **kwargs)
+        assert_kwargs = {key: value for key, value in kwargs.items() if key != "match_fn"}
+        matches = assert_lines_match(self.qemu.output, *args, **assert_kwargs)
+        if "match_fn" in kwargs.keys() and not kwargs["match_fn"](matches):
+            msg = [color("red", "RESULT NOT MATCHED")]
+            msg.extend(matches)
+            raise AssertionError("\n".join(msg))
+        elif "match_fn" in kwargs.keys():
+            print(color("green", "\t\t\tMatching OK"))
 
 
 ##################################################################
@@ -677,9 +689,7 @@ def stop_breakpoint(addr):
     def setup_breakpoint(runner):
         if isinstance(addr, str):
             addrs = [
-                int(sym[:16], 16)
-                for sym in open("kernel/kernel.sym")
-                if sym[17:].strip() == addr
+                int(sym[:16], 16) for sym in open("kernel/kernel.sym") if sym[17:].strip() == addr
             ]
             assert len(addrs), "Symbol %s not found" % addr
             runner.gdb.breakpoint(addrs[0])
@@ -731,9 +741,7 @@ def shell_script(script, terminate_match=None):
         def handle_output(output):
             context.buf.extend(output)
             if terminate_match is not None:
-                if re.match(
-                    terminate_match, context.buf.decode("utf-8", "replace")
-                ):
+                if re.match(terminate_match, context.buf.decode("utf-8", "replace")):
                     raise TerminateTest
             if b"$ " in context.buf:
                 context.buf = bytearray()

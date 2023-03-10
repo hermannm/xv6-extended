@@ -6,6 +6,8 @@
 #include "spinlock.h"
 #include "types.h"
 
+extern uint64 FREE_PAGES; // kalloc.c keeps track of those
+
 uint64 sys_exit(void)
 {
     int n;
@@ -93,5 +95,17 @@ uint64 sys_schedset(void)
     int id = 0;
     argint(0, &id);
     schedset(id - 1);
+    return 0;
+}
+
+uint64 sys_va2pa(void)
+{
+    printf("TODO: IMPLEMENT ME [%s@%s (line %d)]", __func__, __FILE__, __LINE__);
+    return 0;
+}
+
+uint64 sys_pfreepages(void)
+{
+    printf("%d\n", FREE_PAGES);
     return 0;
 }
