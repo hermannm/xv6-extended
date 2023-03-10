@@ -60,7 +60,7 @@ void print_process_with_children(
 
 int main(int argc, char **argv)
 {
-    const struct get_processes_result res = get_processes();
+    struct get_processes_result res = get_processes();
     if (res.error == GET_PROCESSES_SYSCALL_ERROR) {
         printf("[ERROR] Failed to list processes due to syscall error");
         exit(1);
