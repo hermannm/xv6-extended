@@ -41,7 +41,8 @@ KERNEL_OBJS := \
   $(KERNEL_OBJ)/plic.o \
   $(KERNEL_OBJ)/virtio_disk.o \
   $(OBJ)/processes/sys_getprocs.o \
-  $(OBJ)/scheduling/mlfq_scheduler.o
+  $(OBJ)/scheduling/mlfq_scheduler.o \
+  $(OBJ)/memory/sys_vatopa.o
 
 USER_OBJS := \
 	$(USER_OBJ)/ulib.o \
@@ -73,7 +74,8 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_cowtest \
 	$(USER_BIN)/_hello \
 	$(USER_BIN)/_ps \
-	$(USER_BIN)/_proctree
+	$(USER_BIN)/_proctree \
+	$(USER_BIN)/_vatopa
 
 SCRIPTS := \
 	$(USER_LIB)/load.sh
@@ -164,6 +166,16 @@ $(USER_BIN)/_proctree: $(PROCTREE_OBJS) $(USER_OBJS)
 	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
 	$(OBJDUMP) -S $@ > $(USER_BIN)/proctree.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/proctree.sym
+
+VATOPA_OBJS := \
+	$(OBJ)/memory/vatopa.o \
+	$(OBJ)/utils/strings.o
+
+$(USER_BIN)/_vatopa: $(VATOPA_OBJS) $(USER_OBJS)
+	@mkdir -p $(@D)
+	$(LD) $(LDFLAGS) -T $(USER_LIB)/user.ld -o $@ $^
+	$(OBJDUMP) -S $@ > $(USER_BIN)/vatopa.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $(USER_BIN)/vatopa.sym
 
 $(OBJ)/%.o: $(SRC)/%.c
 	@mkdir -p $(@D)
@@ -277,7 +289,7 @@ GRADEFLAGS += -v --color always
 print-gdbport:
 	@echo $(GDBPORT)
 
-LAB := l2
+LAB := l3
 
 test:
 	@echo $(MAKE) clean
