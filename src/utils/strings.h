@@ -46,7 +46,7 @@ enum strntoul_result
 strntoul(uint64 *target_int, const char *source_string, uint max_length, uint base);
 
 /**
- * Returns an appropriate error message for the given result.
+ * Returns an appropriate error message for the given result of a `strntoul` call.
  * Assumes the result has already been checked as not a success.
  */
 char *strntoul_error_message(const enum strntoul_result result);
