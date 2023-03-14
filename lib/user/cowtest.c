@@ -1,3 +1,4 @@
+#include "../../src/memory/sys_vatopa.h"
 #include "../kernel/types.h"
 #include "user.h"
 
@@ -15,7 +16,7 @@ void testcase4()
     if ((pid = fork()) == 0) {
         // child
         sleep(50);
-        printf("[chld] pa1 --> 0x%x\n", va2pa((uint64)&global_array[0], 0));
+        printf("[chld] pa1 --> 0x%x\n", vatopa((uint64)&global_array[0], 0));
         printf("[chld] v4 --> ");
         print_free_frame_cnt();
 
@@ -24,7 +25,7 @@ void testcase4()
             "[chld] modified one element in the 1st page, global_array[0]=%d\n", global_array[0]
         );
 
-        printf("[chld] pa2 --> 0x%x\n", va2pa((uint64)&global_array[0], 0));
+        printf("[chld] pa2 --> 0x%x\n", vatopa((uint64)&global_array[0], 0));
         printf("[chld] v5 --> ");
         print_free_frame_cnt();
 
@@ -50,7 +51,7 @@ void testcase4()
 
         printf("[prnt] v3 --> ");
         print_free_frame_cnt();
-        printf("[prnt] pa3 --> 0x%x\n", va2pa((uint64)&global_array[0], 0));
+        printf("[prnt] pa3 --> 0x%x\n", vatopa((uint64)&global_array[0], 0));
     }
 
     if (wait(0) != pid) {

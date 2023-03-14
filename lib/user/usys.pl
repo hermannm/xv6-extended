@@ -38,6 +38,6 @@ entry("sleep");
 entry("uptime");
 entry("schedls");
 entry("schedset");
-entry("va2pa");
 entry("pfreepages");
 entry("getprocs");
+entry("vatopa");

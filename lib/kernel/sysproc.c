@@ -98,12 +98,6 @@ uint64 sys_schedset(void)
     return 0;
 }
 
-uint64 sys_va2pa(void)
-{
-    printf("TODO: IMPLEMENT ME [%s@%s (line %d)]", __func__, __FILE__, __LINE__);
-    return 0;
-}
-
 uint64 sys_pfreepages(void)
 {
     printf("%d\n", FREE_PAGES);
