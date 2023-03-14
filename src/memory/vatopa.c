@@ -1,3 +1,10 @@
+/**
+ * @file
+ * Takes a virtual memory address and an optional process ID, and prints the corresponding physical
+ * address from the process's pagetable. If no process ID is provided, gets the address from the
+ * current process.
+ */
+
 #include "../../lib/user/user.h"
 #include "../utils/strings.h"
 #include "sys_vatopa.h"
