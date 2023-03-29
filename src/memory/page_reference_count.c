@@ -6,7 +6,7 @@
 #include "../../lib/kernel/spinlock.h"
 #include "../../lib/kernel/types.h"
 
-#define MAX_PAGES (PHYSTOP - KERNBASE) / PGSIZE
+#define MAX_PAGES ((PHYSTOP - KERNBASE) / PGSIZE)
 
 static uint page_reference_counts[MAX_PAGES] = {0};
 static struct spinlock page_reference_counts_lock;
@@ -28,40 +28,55 @@ uint get_page_reference_count(void *allocation)
     return reference_count;
 }
 
-void increment_page_reference_count(void *allocation)
+uint increment_page_reference_count(void *allocation)
 {
     acquire(&page_reference_counts_lock);
 
     uint64 index = page_reference_count_index_from_pointer(allocation);
-    page_reference_counts[index]++;
+    uint new_reference_count = ++page_reference_counts[index];
 
     release(&page_reference_counts_lock);
+
+    return new_reference_count;
 }
 
-void decrement_page_reference_count(void *allocation)
+uint decrement_page_reference_count(void *allocation)
 {
     acquire(&page_reference_counts_lock);
 
     uint64 index = page_reference_count_index_from_pointer(allocation);
-    page_reference_counts[index]--;
+    uint new_reference_count = --page_reference_counts[index];
 
     release(&page_reference_counts_lock);
+
+    return new_reference_count;
 }
 
-void free_page_or_decrement_reference_count(void *allocation)
+void *allocate_page_with_reference_count()
 {
-    uint page_reference_count = get_page_reference_count(allocation);
+    void *allocation = kalloc();
+    increment_page_reference_count(allocation);
+    return allocation;
+}
 
-    if (page_reference_count <= 1) {
-        kfree(allocation);
-    } else {
-        decrement_page_reference_count(allocation);
+uint free_page_if_unreferenced(void *allocation)
+{
+    if (get_page_reference_count(allocation) == 0) {
+        panic("Attempted to free page with 0 references");
     }
+
+    uint new_reference_count = decrement_page_reference_count(allocation);
+
+    if (new_reference_count == 0) {
+        kfree(allocation);
+    }
+
+    return new_reference_count;
 }
 
 uint64 page_reference_count_index_from_pointer(void *allocation)
 {
-    uint64 index = ((uint64)allocation - KERNBASE) / PGSIZE;
+    uint64 index = (PGROUNDDOWN((uint64)allocation) - KERNBASE) / PGSIZE;
 
     if (index < 0 || index >= MAX_PAGES) {
         panic("page_reference_count_index_from_pointer received out-of-bounds physical address");
