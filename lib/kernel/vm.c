@@ -6,6 +6,8 @@
 #include "riscv.h"
 #include "types.h"
 
+#include "../../src/memory/page_reference_count.h"
+
 /*
  * the kernel's page table.
  */
@@ -20,7 +22,7 @@ pagetable_t kvmmake(void)
 {
     pagetable_t kpgtbl;
 
-    kpgtbl = (pagetable_t)kalloc();
+    kpgtbl = (pagetable_t)allocate_page_with_reference_count();
     memset(kpgtbl, 0, PGSIZE);
 
     // uart registers
@@ -89,7 +91,7 @@ pte_t *walk(pagetable_t pagetable, uint64 va, int alloc)
         if (*pte & PTE_V) {
             pagetable = (pagetable_t)PTE2PA(*pte);
         } else {
-            if (!alloc || (pagetable = (pde_t *)kalloc()) == 0)
+            if (!alloc || (pagetable = (pde_t *)allocate_page_with_reference_count()) == 0)
                 return 0;
             memset(pagetable, 0, PGSIZE);
             *pte = PA2PTE(pagetable) | PTE_V;
@@ -177,7 +179,7 @@ void uvmunmap(pagetable_t pagetable, uint64 va, uint64 npages, int do_free)
             panic("uvmunmap: not a leaf");
         if (do_free) {
             uint64 pa = PTE2PA(*pte);
-            kfree((void *)pa);
+            free_page_if_unreferenced((void *)pa);
         }
         *pte = 0;
     }
@@ -188,7 +190,7 @@ void uvmunmap(pagetable_t pagetable, uint64 va, uint64 npages, int do_free)
 pagetable_t uvmcreate()
 {
     pagetable_t pagetable;
-    pagetable = (pagetable_t)kalloc();
+    pagetable = (pagetable_t)allocate_page_with_reference_count();
     if (pagetable == 0)
         return 0;
     memset(pagetable, 0, PGSIZE);
@@ -204,7 +206,7 @@ void uvmfirst(pagetable_t pagetable, uchar *src, uint sz)
 
     if (sz >= PGSIZE)
         panic("uvmfirst: more than a page");
-    mem = kalloc();
+    mem = allocate_page_with_reference_count();
     memset(mem, 0, PGSIZE);
     mappages(pagetable, 0, PGSIZE, (uint64)mem, PTE_W | PTE_R | PTE_X | PTE_U);
     memmove(mem, src, sz);
@@ -222,14 +224,14 @@ uint64 uvmalloc(pagetable_t pagetable, uint64 oldsz, uint64 newsz, int xperm)
 
     oldsz = PGROUNDUP(oldsz);
     for (a = oldsz; a < newsz; a += PGSIZE) {
-        mem = kalloc();
+        mem = allocate_page_with_reference_count();
         if (mem == 0) {
             uvmdealloc(pagetable, a, oldsz);
             return 0;
         }
         memset(mem, 0, PGSIZE);
         if (mappages(pagetable, a, PGSIZE, (uint64)mem, PTE_R | PTE_U | xperm) != 0) {
-            kfree(mem);
+            free_page_if_unreferenced(mem);
             uvmdealloc(pagetable, a, oldsz);
             return 0;
         }
@@ -270,7 +272,7 @@ void freewalk(pagetable_t pagetable)
             panic("freewalk: leaf");
         }
     }
-    kfree((void *)pagetable);
+    free_page_if_unreferenced((void *)pagetable);
 }
 
 // Free user memory pages,
@@ -293,28 +295,29 @@ int uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
     pte_t *pte;
     uint64 pa, i;
     uint flags;
-    char *mem;
 
     for (i = 0; i < sz; i += PGSIZE) {
         if ((pte = walk(old, i, 0)) == 0)
             panic("uvmcopy: pte should exist");
         if ((*pte & PTE_V) == 0)
             panic("uvmcopy: page not present");
+
+        *pte &= ~PTE_W;
+        *pte |= PTE_FORKED;
+
         pa = PTE2PA(*pte);
         flags = PTE_FLAGS(*pte);
-        if ((mem = kalloc()) == 0)
-            goto err;
-        memmove(mem, (char *)pa, PGSIZE);
-        if (mappages(new, i, PGSIZE, (uint64)mem, flags) != 0) {
-            kfree(mem);
-            goto err;
+
+        int mappages_result = mappages(new, i, PGSIZE, pa, flags);
+        if (mappages_result == 0) {
+            increment_page_reference_count((void *)pa);
+        } else {
+            uvmunmap(new, 0, i / PGSIZE, 1);
+            return -1;
         }
     }
-    return 0;
 
-err:
-    uvmunmap(new, 0, i / PGSIZE, 1);
-    return -1;
+    return 0;
 }
 
 // mark a PTE invalid for user access.
