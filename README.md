@@ -1,6 +1,6 @@
-# xv6-utils
+# xv6-extended
 
-Command-line utilities written in C for the xv6 teaching operating system. Made as part of a
+Extended functionality for the xv6 teaching operating system, written in C. Made as part of a
 [course on operating systems](https://www.ntnu.edu/studies/courses/TDT4186) at NTNU Trondheim,
 spring 2023.
 
@@ -22,6 +22,11 @@ spring 2023.
   - `scheduling` contains a scheduler: a kernel-space algorithm that decides which processes get to
     execute at a time
     - `mlfq_scheduler` implements a Multi-Level Feedback Queue (MLFQ) scheduler for xv6
+  - `memory` contains kernel-space features related to memory handling
+    - `page_reference_count` contains functions for counting references to memory pages, to allow multiple virtual addresses to point to the same physical address
+    - `trap_handler` implements copy-on-write (COW) handling of memory shared by forked processes
+    - `sys_vatopa` provides a syscall for translating a virtual address to a physical address
+    - `vatopa` is provides a user-space command-line utility that uses the `vatopa` syscall
   - `utils` contains general-use utility functions and data types
     - `int_list` provides a dynamically sized list of integers
     - `realloc` provides a function to reallocate memory to a new size
