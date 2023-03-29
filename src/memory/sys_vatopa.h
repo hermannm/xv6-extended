@@ -7,7 +7,8 @@
  * Syscall to translate a given virtual address to its corresponding physical address.
  *
  * @param virtual_address The virtual address to translate.
- * @param process_id ID of the process whose page table should be used to translate the address.
+ * @param process_id ID of the process whose page table should be used to translate the address, or
+ * 0 if the calling process's page table should be used.
  * @return An integer that is either:
  * - the translated physical address
  * - 0, if the given virtual address was not mapped or the process ID was invalid

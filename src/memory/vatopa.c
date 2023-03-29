@@ -36,11 +36,9 @@ int main(int argc, char **argv)
         printf("Failed to parse provided virtual address: %s\n", error_message);
     }
 
-    int process_id;
+    int process_id = 0;
     if (argc == 3) {
         process_id = atoi(argv[2]);
-    } else {
-        process_id = getpid();
     }
 
     uint64 physical_address = vatopa(virtual_address, process_id);

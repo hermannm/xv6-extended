@@ -9,23 +9,28 @@ uint64 sys_vatopa(void)
 {
     const struct vatopa_args args = get_vatopa_args();
 
-    uint64 physical_address = 0;
+    struct proc *process = 0;
 
-    for (struct proc *process = proc; process < &proc[NPROC]; process++) {
+    if (args.process_id == 0) {
+        process = myproc();
         acquire(&process->lock);
-
-        if (process->pid != args.process_id) {
+    } else {
+        for (process = proc; process < &proc[NPROC]; process++) {
+            acquire(&process->lock);
+            if (process->pid == args.process_id) {
+                break;
+            }
             release(&process->lock);
-            continue;
         }
-
-        physical_address = walkaddr(process->pagetable, args.virtual_address);
-
-        release(&process->lock);
-        break;
     }
 
-    return physical_address;
+    if (process != 0) {
+        uint64 physical_address = walkaddr(process->pagetable, args.virtual_address);
+        release(&process->lock);
+        return physical_address;
+    } else {
+        return 0;
+    }
 }
 
 struct vatopa_args get_vatopa_args()
