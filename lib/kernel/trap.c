@@ -6,6 +6,8 @@
 #include "spinlock.h"
 #include "types.h"
 
+#include "../../src/memory/trap_handler.h"
+
 struct spinlock tickslock;
 uint ticks;
 
@@ -27,6 +29,8 @@ void trapinithart(void)
     w_stvec((uint64)kernelvec);
 }
 
+#define TRAP_CAUSE_WRITE_TO_READONLY_PAGE 15
+
 //
 // handle an interrupt, exception, or system call from user space.
 // called from trampoline.S
@@ -47,7 +51,8 @@ void usertrap(void)
     // save user program counter.
     p->trapframe->epc = r_sepc();
 
-    if (r_scause() == 8) {
+    uint64 trap_cause = r_scause();
+    if (trap_cause == 8) {
         // system call
 
         if (killed(p))
@@ -62,10 +67,13 @@ void usertrap(void)
         intr_on();
 
         syscall();
+    } else if (trap_cause == TRAP_CAUSE_WRITE_TO_READONLY_PAGE) {
+        uint64 faulting_virtual_address = r_stval();
+        handle_write_to_readonly_page(faulting_virtual_address, p);
     } else if ((which_dev = devintr()) != 0) {
         // ok
     } else {
-        printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
+        printf("usertrap(): unexpected scause %p pid=%d\n", trap_cause, p->pid);
         printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
         setkilled(p);
     }

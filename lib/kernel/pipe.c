@@ -8,6 +8,8 @@
 #include "spinlock.h"
 #include "types.h"
 
+#include "../../src/memory/page_reference_count.h"
+
 #define PIPESIZE 512
 
 struct pipe {
@@ -27,7 +29,7 @@ int pipealloc(struct file **f0, struct file **f1)
     *f0 = *f1 = 0;
     if ((*f0 = filealloc()) == 0 || (*f1 = filealloc()) == 0)
         goto bad;
-    if ((pi = (struct pipe *)kalloc()) == 0)
+    if ((pi = (struct pipe *)allocate_page_with_reference_count()) == 0)
         goto bad;
     pi->readopen = 1;
     pi->writeopen = 1;
@@ -46,7 +48,7 @@ int pipealloc(struct file **f0, struct file **f1)
 
 bad:
     if (pi)
-        kfree((char *)pi);
+        free_page_if_unreferenced((char *)pi);
     if (*f0)
         fileclose(*f0);
     if (*f1)
@@ -66,7 +68,7 @@ void pipeclose(struct pipe *pi, int writable)
     }
     if (pi->readopen == 0 && pi->writeopen == 0) {
         release(&pi->lock);
-        kfree((char *)pi);
+        free_page_if_unreferenced((char *)pi);
     } else
         release(&pi->lock);
 }

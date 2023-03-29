@@ -9,6 +9,8 @@
 #include "spinlock.h"
 #include "types.h"
 
+#include "../../src/memory/page_reference_count.h"
+
 uint64 MAX_PAGES = 0;
 uint64 FREE_PAGES = 0;
 
@@ -28,6 +30,7 @@ struct {
 
 void kinit()
 {
+    initialize_page_reference_counts();
     initlock(&kmem.lock, "kmem");
     freerange(end, (void *)PHYSTOP);
     MAX_PAGES = FREE_PAGES;

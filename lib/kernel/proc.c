@@ -1,11 +1,13 @@
 #include "proc.h"
-#include "../../src/scheduling/mlfq_scheduler.h"
 #include "defs.h"
 #include "memlayout.h"
 #include "param.h"
 #include "riscv.h"
 #include "spinlock.h"
 #include "types.h"
+
+#include "../../src/memory/page_reference_count.h"
+#include "../../src/scheduling/mlfq_scheduler.h"
 
 struct cpu cpus[NCPU];
 
@@ -51,7 +53,7 @@ void proc_mapstacks(pagetable_t kpgtbl)
     struct proc *p;
 
     for (p = proc; p < &proc[NPROC]; p++) {
-        char *pa = kalloc();
+        char *pa = allocate_page_with_reference_count();
         if (pa == 0)
             panic("kalloc");
         uint64 va = KSTACK((int)(p - proc));
@@ -136,7 +138,7 @@ found:
     p->state = USED;
 
     // Allocate a trapframe page.
-    if ((p->trapframe = (struct trapframe *)kalloc()) == 0) {
+    if ((p->trapframe = (struct trapframe *)allocate_page_with_reference_count()) == 0) {
         freeproc(p);
         release(&p->lock);
         return 0;
@@ -165,7 +167,7 @@ found:
 static void freeproc(struct proc *p)
 {
     if (p->trapframe)
-        kfree((void *)p->trapframe);
+        free_page_if_unreferenced((void *)p->trapframe);
     p->trapframe = 0;
     if (p->pagetable)
         proc_freepagetable(p->pagetable, p->sz);

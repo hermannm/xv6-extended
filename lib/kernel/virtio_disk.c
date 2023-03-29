@@ -17,6 +17,8 @@
 #include "types.h"
 #include "virtio.h"
 
+#include "../../src/memory/page_reference_count.h"
+
 // the address of virtio mmio register r.
 #define R(r) ((volatile uint32 *)(VIRTIO0 + (r)))
 
@@ -117,9 +119,9 @@ void virtio_disk_init(void)
         panic("virtio disk max queue too short");
 
     // allocate and zero queue memory.
-    disk.desc = kalloc();
-    disk.avail = kalloc();
-    disk.used = kalloc();
+    disk.desc = allocate_page_with_reference_count();
+    disk.avail = allocate_page_with_reference_count();
+    disk.used = allocate_page_with_reference_count();
     if (!disk.desc || !disk.avail || !disk.used)
         panic("virtio disk kalloc");
     memset(disk.desc, 0, PGSIZE);

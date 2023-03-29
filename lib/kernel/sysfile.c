@@ -16,6 +16,8 @@
 #include "stat.h"
 #include "types.h"
 
+#include "../../src/memory/page_reference_count.h"
+
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int argfd(int n, int *pfd, struct file **pf)
@@ -437,7 +439,7 @@ uint64 sys_exec(void)
             argv[i] = 0;
             break;
         }
-        argv[i] = kalloc();
+        argv[i] = allocate_page_with_reference_count();
         if (argv[i] == 0)
             goto bad;
         if (fetchstr(uarg, argv[i], PGSIZE) < 0)
@@ -447,13 +449,13 @@ uint64 sys_exec(void)
     int ret = exec(path, argv);
 
     for (i = 0; i < NELEM(argv) && argv[i] != 0; i++)
-        kfree(argv[i]);
+        free_page_if_unreferenced(argv[i]);
 
     return ret;
 
 bad:
     for (i = 0; i < NELEM(argv) && argv[i] != 0; i++)
-        kfree(argv[i]);
+        free_page_if_unreferenced(argv[i]);
     return -1;
 }
 
