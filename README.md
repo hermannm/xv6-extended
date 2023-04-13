@@ -23,8 +23,8 @@ spring 2023.
     execute at a time
     - `mlfq_scheduler` implements a Multi-Level Feedback Queue (MLFQ) scheduler for xv6
   - `memory` contains kernel-space features related to memory handling
+    - `copy_on_write_handler` implements copy-on-write (COW) handling of memory shared by forked processes
     - `page_reference_count` contains functions for counting references to memory pages, to allow multiple virtual addresses to point to the same physical address
-    - `trap_handler` implements copy-on-write (COW) handling of memory shared by forked processes
     - `sys_vatopa` provides a syscall for translating a virtual address to a physical address
     - `vatopa` provides a user-space command-line utility that uses the `vatopa` syscall
   - `utils` contains general-use utility functions and data types

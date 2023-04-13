@@ -44,7 +44,7 @@ KERNEL_OBJS := \
   $(OBJ)/scheduling/mlfq_scheduler.o \
   $(OBJ)/memory/sys_vatopa.o \
   $(OBJ)/memory/page_reference_count.o \
-  $(OBJ)/memory/trap_handler.o
+  $(OBJ)/memory/copy_on_write_handler.o
 
 USER_OBJS := \
 	$(USER_OBJ)/ulib.o \

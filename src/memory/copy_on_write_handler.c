@@ -5,9 +5,9 @@
 
 #include "page_reference_count.h"
 
-#include "trap_handler.h"
+#include "copy_on_write_handler.h"
 
-void handle_write_to_readonly_page(uint64 faulting_virtual_address, struct proc *calling_process)
+void handle_copy_on_write_to_page(uint64 faulting_virtual_address, struct proc *calling_process)
 {
     pagetable_t pagetable = calling_process->pagetable;
 

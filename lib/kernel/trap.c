@@ -6,7 +6,7 @@
 #include "spinlock.h"
 #include "types.h"
 
-#include "../../src/memory/trap_handler.h"
+#include "../../src/memory/copy_on_write_handler.h"
 
 struct spinlock tickslock;
 uint ticks;
@@ -69,7 +69,7 @@ void usertrap(void)
         syscall();
     } else if (trap_cause == TRAP_CAUSE_WRITE_TO_READONLY_PAGE) {
         uint64 faulting_virtual_address = r_stval();
-        handle_write_to_readonly_page(faulting_virtual_address, p);
+        handle_copy_on_write_to_page(faulting_virtual_address, p);
     } else if ((which_dev = devintr()) != 0) {
         // ok
     } else {
