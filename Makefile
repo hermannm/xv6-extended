@@ -50,7 +50,10 @@ USER_OBJS := \
 	$(USER_OBJ)/ulib.o \
 	$(USER_OBJ)/usys.o \
 	$(USER_OBJ)/printf.o \
-	$(USER_OBJ)/umalloc.o
+	$(USER_OBJ)/umalloc.o \
+	$(USER_OBJ)/lock.o \
+	$(USER_OBJ)/tswtch.o \
+	$(USER_OBJ)/uthread.o
 
 USER_PROGRAMS := \
 	$(USER_BIN)/_cat \
@@ -68,7 +71,9 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_schedset \
 	$(USER_BIN)/_sh \
 	$(USER_BIN)/_stressfs \
+	$(USER_BIN)/_task1test\
 	$(USER_BIN)/_time \
+	$(USER_BIN)/_ttest\
 	$(USER_BIN)/_usertests \
 	$(USER_BIN)/_grind \
 	$(USER_BIN)/_wc \
@@ -187,6 +192,10 @@ $(USER_OBJ)/%.o: $(USER_LIB)/%.c
 	@mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
+$(USER_OBJ)/%.o: $(USER_LIB)/%.S
+	@mkdir -p $(@D)
+	$(CC) -c $(CFLAGS) -o $@ $<
+
 $(KERNEL_OBJ)/%.o: $(KERNEL_LIB)/%.c
 	@mkdir -p $(@D)
 	$(CC) -c $(CFLAGS) -o $@ $<
@@ -291,7 +300,7 @@ GRADEFLAGS += -v --color always
 print-gdbport:
 	@echo $(GDBPORT)
 
-LAB := l3
+LAB := l4
 
 test:
 	@echo $(MAKE) clean

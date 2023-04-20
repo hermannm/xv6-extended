@@ -25,6 +25,8 @@
 #define BACKSPACE 0x100
 #define C(x) ((x) - '@') // Control-x
 
+extern struct proc proc[NPROC];
+
 //
 // send one character to the uart.
 // called by printf(), and to echo input characters,
@@ -145,6 +147,21 @@ void consoleintr(int c)
             consputc(BACKSPACE);
         }
         break;
+    case C('C'): // kill "highest" process - this is not always correct but ok for now
+    {
+
+        struct proc *current_proc = proc;
+        struct proc *p = proc;
+        for (; p < &proc[NPROC]; ++p) {
+            if (p->state != UNUSED && p->pid > current_proc->pid) {
+                current_proc = p;
+            }
+        }
+        if (!current_proc)
+            break;
+        if (current_proc->parent->pid != 1)
+            setkilled(current_proc);
+    } break;
     case C('H'): // Backspace
     case '\x7f': // Delete key
         if (cons.e != cons.w) {

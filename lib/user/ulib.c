@@ -4,13 +4,15 @@
 #include "user.h"
 
 //
-// wrapper so that it's OK if main() does not call exit().
+// wrapper so that it's OK if main() does not call exit() and setup main thread.
 //
-void _main()
+void _main(int argc, char *argv[])
 {
-    extern int main();
-    main();
-    exit(0);
+    // TODO: Ensure that main also is taken into consideration by the thread scheduler
+    // TODO: This function should only return once all threads have finished running
+    extern int main(int argc, char *argv[]);
+    int res = main(argc, argv);
+    exit(res);
 }
 
 char *strcpy(char *s, const char *t)
