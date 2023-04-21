@@ -1,6 +1,8 @@
 #include "../kernel/types.h"
 #include "user.h"
 
+#include "../../src/threads/threads.h"
+
 struct arg {
     int a;
     int b;
@@ -12,19 +14,19 @@ struct lock shared_state_lock;
 void *race_for_state(void *arg)
 {
     struct arg args = *(struct arg *)arg;
-    printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
+    printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
     if (shared_state == 0) {
-        tyield();
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
+        yield_thread();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
         shared_state += args.a;
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
-        tyield();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
+        yield_thread();
     } else {
-        tyield();
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
+        yield_thread();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
         shared_state += args.b;
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
-        tyield();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
+        yield_thread();
     }
     return 0;
 }
@@ -33,20 +35,20 @@ void *race_for_state(void *arg)
 void *no_race_for_state(void *arg)
 {
     struct arg args = *(struct arg *)arg;
-    printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
+    printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
     acquire(&shared_state_lock);
     if (shared_state == 0) {
-        tyield();
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
+        yield_thread();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
         shared_state += args.a;
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
-        tyield();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
+        yield_thread();
     } else {
-        tyield();
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
+        yield_thread();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
         shared_state += args.b;
-        printf("%s[%d] %d\n", __FUNCTION__, twhoami(), shared_state);
-        tyield();
+        printf("%s[%d] %d\n", __FUNCTION__, get_current_thread_id(), shared_state);
+        yield_thread();
     }
     release(&shared_state_lock);
     return 0;
@@ -60,7 +62,7 @@ void *print_hello_world(void *arg)
 
 void *print_hello_world_with_tid(void *arg)
 {
-    printf("Hello World from Thread %d\n", twhoami());
+    printf("Hello World from Thread %d\n", get_current_thread_id());
     return 0;
 }
 
@@ -78,8 +80,8 @@ void test1()
 {
     printf("[%s enter]\n", __FUNCTION__);
     struct thread *t;
-    tcreate(&t, 0, &print_hello_world, 0);
-    tyield();
+    create_thread(&t, 0, &print_hello_world, 0);
+    yield_thread();
     printf("[%s exit]\n", __FUNCTION__);
 }
 
@@ -88,10 +90,10 @@ void test2()
     printf("[%s enter]\n", __FUNCTION__);
     struct thread *threadpool[8] = {0};
     for (int i = 0; i < 8; i++) {
-        tcreate(&threadpool[i], 0, &print_hello_world_with_tid, 0);
+        create_thread(&threadpool[i], 0, &print_hello_world_with_tid, 0);
     }
     for (int i = 0; i < 8; i++) {
-        tjoin(threadpool[i]->tid, 0, 0);
+        join_thread(threadpool[i]->id, 0, 0);
     }
     printf("[%s exit]\n", __FUNCTION__);
 }
@@ -100,15 +102,15 @@ void test3()
 {
     printf("[%s enter]\n", __FUNCTION__);
     struct thread *t;
-    struct thread_attr tattr;
+    struct thread_attributes tattr;
     tattr.res_size = sizeof(int);
     tattr.stacksize = 512;
     struct arg args;
     args.a = 1;
     args.b = 10;
-    tcreate(&t, &tattr, &calculate_rv, &args);
+    create_thread(&t, &tattr, &calculate_rv, &args);
     int result;
-    tjoin(t->tid, &result, sizeof(int));
+    join_thread(t->id, &result, sizeof(int));
     printf("parent result: %d\n", result);
     printf("[%s exit]\n", __FUNCTION__);
 }
@@ -121,11 +123,11 @@ void test4()
     struct arg args;
     args.a = 1;
     args.b = 2;
-    tcreate(&ta, 0, &race_for_state, &args);
-    tcreate(&tb, 0, &race_for_state, &args);
-    tyield();
-    tjoin(ta->tid, 0, 0);
-    tjoin(tb->tid, 0, 0);
+    create_thread(&ta, 0, &race_for_state, &args);
+    create_thread(&tb, 0, &race_for_state, &args);
+    yield_thread();
+    join_thread(ta->id, 0, 0);
+    join_thread(tb->id, 0, 0);
     printf("[%s exit]\n", __FUNCTION__);
 }
 
@@ -138,11 +140,11 @@ void test5()
     struct arg args;
     args.a = 1;
     args.b = 2;
-    tcreate(&ta, 0, &no_race_for_state, &args);
-    tcreate(&tb, 0, &no_race_for_state, &args);
-    tyield();
-    tjoin(ta->tid, 0, 0);
-    tjoin(tb->tid, 0, 0);
+    create_thread(&ta, 0, &no_race_for_state, &args);
+    create_thread(&tb, 0, &no_race_for_state, &args);
+    yield_thread();
+    join_thread(ta->id, 0, 0);
+    join_thread(tb->id, 0, 0);
     printf("[%s exit]\n", __FUNCTION__);
 }
 int main(int argc, char *argv[])

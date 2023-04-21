@@ -1,3 +1,6 @@
+#ifndef USER_H
+#define USER_H
+
 #include "../kernel/types.h"
 
 struct stat;
@@ -59,7 +62,7 @@ void *memcpy(void *, const void *, uint);
 
 /// @brief This is the thread context, storing the return address, the stack
 ///        pointer and all callee saved registers
-struct context {
+struct thread_context {
     uint64 ra;
     uint64 sp;
 
@@ -78,69 +81,14 @@ struct context {
     uint64 s11;
 };
 
-/// @brief The thread struct will contain all additional information we require
-///        to handle for the threads. You might need to store more information
-///        to implement parts of the tasks. Feel free to extend the struct
-///        accordingly.
-struct thread {
-    uint8 tid;
-    struct context tcontext;
-    enum procstate state;
-    void *arg;
-    void *(*func)(void *);
-
-    // Feel free to add more fields as needed
-};
-
-/// @brief These are the attributes that can be set when creating a thread.
-///        We will only test the ones listed below, but if you want to be able
-///        to configure your thread in greater detail (or go to the harder
-///        optional tasks), you might want to extend the attributes.
-struct thread_attr {
-    uint32 stacksize;
-    uint32 res_size;
-
-    // Feel free to add more fields as needed
-};
-
 /// @brief Switch from old thread context to new thread context.
 /// @param old denotes the previous thread context, that will be switched out
 /// @param new denotes the thread context of the thread that will be run next
-extern void tswtch(struct context *old, struct context *new);
+extern void tswtch(struct thread_context *old, struct thread_context *new);
 
 ////////////////////////////////////////////////////////////////
 /// NOTE: DON'T CHANGE THE FUNCTION OUTLINES BELOW THIS LINE ///
 ////////////////////////////////////////////////////////////////
-
-/// @brief The thread scheduler, which will directly switch to the next thread
-void tsched(void);
-
-/// @brief Allocates and initializes a new thread and stores the newly allocated
-///        thread into the thread pointer. The created thread will be
-///        immediately runnable, no further steps required.
-/// @param thread Double pointer, such that the pointer can be modified to
-///               contain the pointer to the newly allocated thread.
-/// @param attr Attributes that configure the thread as needed
-/// @param func The pointer to the function that should be run in the thread
-/// @param arg If the function takes an argument this can be passed using the arg argument
-void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(void *arg), void *arg);
-
-/// @brief Joins the calling thread with the thread with thread id tid. (This means wait
-///        for thread tid to finish execution before returning). After returning the status
-///        will contain the return value of the function.
-/// @param tid The thread id of the thread to join
-/// @param status If not null and the thread has a return value, this should contain the return
-/// value
-/// @param size This denotes the size of the return value in bytes
-/// @return
-int tjoin(int tid, void *status, uint size);
-
-/// @brief Yield to another thread
-void tyield();
-
-/// @brief Get the tid for the currently running thread
-/// @return The thread id of the currently running thread
-uint8 twhoami();
 
 // ulock.c
 struct lock {
@@ -167,3 +115,5 @@ void acquire(struct lock *lk);
 /// @brief Release a lock
 /// @param lk Lock to be released
 void release(struct lock *lk);
+
+#endif // USER_H

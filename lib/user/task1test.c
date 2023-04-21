@@ -1,6 +1,8 @@
 #include "../kernel/types.h"
 #include "user.h"
 
+#include "../../src/threads/threads.h"
+
 void *hello_world(void *arg)
 {
     printf("Hello World\n");
@@ -13,8 +15,8 @@ void main()
     struct thread *t;
 
     // passing &t (taking the address of the pointer value)
-    tcreate(&t, 0, &hello_world, 0);
+    create_thread(&t, 0, &hello_world, 0);
     // Now, t points to an initialized thread struct
 
-    tyield();
+    yield_thread();
 }

@@ -53,7 +53,7 @@ USER_OBJS := \
 	$(USER_OBJ)/umalloc.o \
 	$(USER_OBJ)/lock.o \
 	$(USER_OBJ)/tswtch.o \
-	$(USER_OBJ)/uthread.o
+	$(OBJ)/threads/threads.o
 
 USER_PROGRAMS := \
 	$(USER_BIN)/_cat \

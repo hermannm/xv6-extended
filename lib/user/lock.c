@@ -2,6 +2,8 @@
 #include "../kernel/types.h"
 #include "user.h"
 
+#include "../../src/threads/threads.h"
+
 void initlock(struct lock *lk, char *name)
 {
     lk->name = name;
@@ -11,7 +13,7 @@ void initlock(struct lock *lk, char *name)
 
 uint8 holding(struct lock *lk)
 {
-    return lk->locked && lk->tid == twhoami();
+    return lk->locked && lk->tid == get_current_thread_id();
 }
 
 void acquire(struct lock *lk)
@@ -23,12 +25,12 @@ void acquire(struct lock *lk)
 
     while (__sync_lock_test_and_set(&lk->locked, 1) != 0) {
         // give up the cpu for other threads
-        tyield();
+        yield_thread();
     }
 
     __sync_synchronize();
 
-    lk->tid = twhoami();
+    lk->tid = get_current_thread_id();
 }
 
 void release(struct lock *lk)
@@ -41,5 +43,5 @@ void release(struct lock *lk)
     lk->tid = -1;
     __sync_synchronize();
     __sync_lock_release(&lk->locked);
-    tyield(); // yield that other threads that need the lock can grab it
+    yield_thread(); // yield that other threads that need the lock can grab it
 }
