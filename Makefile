@@ -55,7 +55,7 @@ USER_OBJS := \
 	$(USER_OBJ)/tswtch.o \
 	$(OBJ)/threads/thread.o \
 	$(OBJ)/threads/thread_list.o \
-	$(OBJ)/threads/main.o
+	$(OBJ)/threads/main_thread.o
 
 USER_PROGRAMS := \
 	$(USER_BIN)/_cat \
