@@ -27,6 +27,10 @@ spring 2023.
     - `page_reference_count` contains functions for counting references to memory pages, to allow multiple virtual addresses to point to the same physical address
     - `sys_vatopa` provides a syscall for translating a virtual address to a physical address
     - `vatopa` provides a user-space command-line utility that uses the `vatopa` syscall
+  - `threads` contains a user-space multithreading library
+    - `thread` contains the API for threads (creation, scheduling, yielding and joining)
+    - `thread_list` provides functions for tracking and retrieving threads
+    - `main_thread` contains a wrapper around the entrypoint of programs, to set up the main thread
   - `utils` contains general-use utility functions and data types
     - `int_list` provides a dynamically sized list of integers
     - `realloc` provides a function to reallocate memory to a new size
