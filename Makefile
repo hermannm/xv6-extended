@@ -53,7 +53,9 @@ USER_OBJS := \
 	$(USER_OBJ)/umalloc.o \
 	$(USER_OBJ)/lock.o \
 	$(USER_OBJ)/tswtch.o \
-	$(OBJ)/threads/threads.o
+	$(OBJ)/threads/thread.o \
+	$(OBJ)/threads/thread_list.o \
+	$(OBJ)/threads/main.o
 
 USER_PROGRAMS := \
 	$(USER_BIN)/_cat \
@@ -71,7 +73,6 @@ USER_PROGRAMS := \
 	$(USER_BIN)/_schedset \
 	$(USER_BIN)/_sh \
 	$(USER_BIN)/_stressfs \
-	$(USER_BIN)/_task1test\
 	$(USER_BIN)/_time \
 	$(USER_BIN)/_ttest\
 	$(USER_BIN)/_usertests \
@@ -215,7 +216,7 @@ $(USER_BIN)/_forktest: $(USER_OBJ)/forktest.o $(USER_OBJS)
 # forktest has less library code linked in - needs to be small in order to be able to max out the
 # proc table.
 	@mkdir -p $(@D)
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $< $(USER_OBJ)/ulib.o $(USER_OBJ)/usys.o
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $< $(USER_OBJS)
 	$(OBJDUMP) -S $@ > $(USER_BIN)/forktest.asm
 
 $(BIN)/mkfs/mkfs: $(LIB)/mkfs/mkfs.c $(KERNEL_LIB)/fs.h $(KERNEL_LIB)/param.h
