@@ -1,6 +1,7 @@
 #include "../../lib/kernel/types.h"
 #include "../../lib/user/user.h"
 
+#include "main_thread.h"
 #include "thread.h"
 
 #include "thread_list.h"

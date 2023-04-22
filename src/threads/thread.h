@@ -4,8 +4,6 @@
 #include "../../lib/kernel/types.h"
 #include "../../lib/user/user.h"
 
-#define MAIN_THREAD_ID 0
-
 enum thread_state {
     UNUSED,
     USED,
