@@ -4,15 +4,6 @@
 #include "../kernel/types.h"
 
 struct stat;
-enum procstate {
-    UNUSED,
-    USED,
-    SLEEPING,
-    RUNNABLE,
-    RUNNING,
-    ZOMBIE,
-    EXITED,
-};
 
 // system calls
 int fork(void);
@@ -57,8 +48,6 @@ void free(void *);
 int atoi(const char *);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
-
-// uthread.c
 
 /// @brief This is the thread context, storing the return address, the stack
 ///        pointer and all callee saved registers

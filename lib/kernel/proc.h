@@ -86,18 +86,18 @@ struct trapframe {
     /* 280 */ uint64 t6;
 };
 
-enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+enum thread_state { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
 struct proc {
     struct spinlock lock;
 
     // p->lock must be held when using these:
-    enum procstate state; // Process state
-    void *chan;           // If non-zero, sleeping on chan
-    int killed;           // If non-zero, have been killed
-    int xstate;           // Exit status to be returned to parent's wait
-    int pid;              // Process ID
+    enum thread_state state; // Process state
+    void *chan;              // If non-zero, sleeping on chan
+    int killed;              // If non-zero, have been killed
+    int xstate;              // Exit status to be returned to parent's wait
+    int pid;                 // Process ID
 
     // wait_lock must be held when using this:
     struct proc *parent; // Parent process

@@ -2,7 +2,7 @@
 #include "../kernel/types.h"
 #include "user.h"
 
-#include "../../src/threads/threads.h"
+#include "../../src/threads/thread.h"
 
 void initlock(struct lock *lk, char *name)
 {

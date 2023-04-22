@@ -1,7 +1,8 @@
 #include "../kernel/types.h"
 #include "user.h"
 
-#include "../../src/threads/threads.h"
+#include "../../src/threads/thread.h"
+#include "../../src/threads/thread_list.h"
 
 struct arg {
     int a;
@@ -103,8 +104,8 @@ void test3()
     printf("[%s enter]\n", __FUNCTION__);
     struct thread *t;
     struct thread_attributes tattr;
-    tattr.res_size = sizeof(int);
-    tattr.stacksize = 512;
+    tattr.result_size = sizeof(int);
+    tattr.stack_size = 512;
     struct arg args;
     args.a = 1;
     args.b = 10;
@@ -125,6 +126,12 @@ void test4()
     args.b = 2;
     create_thread(&ta, 0, &race_for_state, &args);
     create_thread(&tb, 0, &race_for_state, &args);
+
+    for (uint8 i = 0; i < 16; i++) {
+        struct thread *thread = get_thread(i);
+        printf("{ id: %d, state: %d }\n", thread->id, thread->state);
+    }
+
     yield_thread();
     join_thread(ta->id, 0, 0);
     join_thread(tb->id, 0, 0);
