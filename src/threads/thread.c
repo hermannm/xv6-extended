@@ -28,7 +28,7 @@ void schedule_next_thread()
         int result;
         int error = get_thread_result(main_thread, &result, sizeof(int));
 
-        free_thread(main_thread);
+        free_thread_list();
 
         if (error == 0) {
             exit(result);

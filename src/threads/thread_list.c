@@ -18,6 +18,14 @@ void initialize_thread_list()
     }
 }
 
+void free_thread_list()
+{
+    for (struct thread *thread = thread_list; thread < &thread_list[THREAD_LIST_CAPACITY]; thread++)
+    {
+        free_thread(thread);
+    }
+}
+
 struct thread *get_thread(uint8 thread_id)
 {
     if (thread_id >= THREAD_LIST_CAPACITY) {

@@ -12,6 +12,11 @@
 void initialize_thread_list();
 
 /**
+ * Goes through every thread in the thread list, and frees them.
+ */
+void free_thread_list();
+
+/**
  * Returns the thread with the given thread ID, or 0 if no thread with that ID is found.
  */
 struct thread *get_thread(uint8 thread_id);
