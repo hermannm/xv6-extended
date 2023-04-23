@@ -7,10 +7,8 @@ void _main(int argc, char *argv[])
 {
     initialize_thread_list();
 
-    struct thread *main_thread;
-    struct thread_attributes attributes = {.result_size = sizeof(int)};
     struct main_thread_arg arg = {.argc = argc, .argv = argv};
-    create_thread(&main_thread, &attributes, main_thread_function, &arg);
+    struct thread *main_thread = create_thread(main_thread_function, &arg, sizeof(int), 0);
     if (main_thread == 0) {
         exit(1);
     }

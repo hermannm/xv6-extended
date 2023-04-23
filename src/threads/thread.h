@@ -38,14 +38,6 @@ struct thread {
 };
 
 /**
- * Attributes that can be set when creating a thread.
- */
-struct thread_attributes {
-    uint32 result_size;
-    uint32 stack_size;
-};
-
-/**
  * The thread scheduler, which will directly switch to the next thread.
  */
 void schedule_next_thread(void);
@@ -54,17 +46,17 @@ void schedule_next_thread(void);
  * Allocates and initializes a new thread, and stores the newly allocated thread into the thread
  * pointer. The created thread will be immediately runnable, no further steps required.
  *
- * @param returned_thread Double pointer, such that the pointer can be modified to contain the
- * pointer to the newly allocated thread.
- * @param attributes Attributes that configure the thread as needed.
- * @param thread_function The pointer to the function that should be run in the thread.
- * @param thread_function_arg If the function takes an argument this can be passed using the arg
- * argument.
+ * @param function Pointer to function to run in the thread (see thread_function_t docstring for
+ * the expected function signature).
+ * @param argument Argument to be passed to the thread function when invoked. Pass 0 if the function
+ * does not use its argument. To pass multiple arguments, wrap them in a struct.
+ * @param result_size Size of the result returned by the thread function. Pass 0 if the function
+ * returns nothing.
+ * @param stack_size The size of the stack to allocate for the thread. Pass 0 to default to the page
+ * size.
  */
-void create_thread(
-    struct thread **returned_thread, struct thread_attributes *attributes,
-    thread_function_t thread_function, void *thread_function_arg
-);
+struct thread *
+create_thread(thread_function_t function, void *argument, uint32 result_size, uint32 stack_size);
 
 void free_thread(struct thread *thread);
 

@@ -80,8 +80,7 @@ void *calculate_rv(void *arg)
 void test1()
 {
     printf("[%s enter]\n", __FUNCTION__);
-    struct thread *t;
-    create_thread(&t, 0, &print_hello_world, 0);
+    create_thread(&print_hello_world, 0, 0, 0);
     yield_thread();
     printf("[%s exit]\n", __FUNCTION__);
 }
@@ -91,7 +90,7 @@ void test2()
     printf("[%s enter]\n", __FUNCTION__);
     struct thread *threadpool[8] = {0};
     for (int i = 0; i < 8; i++) {
-        create_thread(&threadpool[i], 0, &print_hello_world_with_tid, 0);
+        threadpool[i] = create_thread(&print_hello_world_with_tid, 0, 0, 0);
     }
     for (int i = 0; i < 8; i++) {
         join_thread(threadpool[i]->id, 0, 0);
@@ -102,14 +101,8 @@ void test2()
 void test3()
 {
     printf("[%s enter]\n", __FUNCTION__);
-    struct thread *t;
-    struct thread_attributes tattr;
-    tattr.result_size = sizeof(int);
-    tattr.stack_size = 512;
-    struct arg args;
-    args.a = 1;
-    args.b = 10;
-    create_thread(&t, &tattr, &calculate_rv, &args);
+    struct arg args = {.a = 1, .b = 10};
+    struct thread *t = create_thread(&calculate_rv, &args, sizeof(int), 512);
     int result;
     join_thread(t->id, &result, sizeof(int));
     printf("parent result: %d\n", result);
@@ -119,13 +112,9 @@ void test3()
 void test4()
 {
     printf("[%s enter]\n", __FUNCTION__);
-    struct thread *ta;
-    struct thread *tb;
-    struct arg args;
-    args.a = 1;
-    args.b = 2;
-    create_thread(&ta, 0, &race_for_state, &args);
-    create_thread(&tb, 0, &race_for_state, &args);
+    struct arg args = {.a = 1, .b = 2};
+    struct thread *ta = create_thread(&race_for_state, &args, 0, 0);
+    struct thread *tb = create_thread(&race_for_state, &args, 0, 0);
 
     for (uint8 i = 0; i < 16; i++) {
         struct thread *thread = get_thread(i);
@@ -142,13 +131,9 @@ void test5()
 {
     printf("[%s enter]\n", __FUNCTION__);
     initlock(&shared_state_lock, "sharedstate lock");
-    struct thread *ta;
-    struct thread *tb;
-    struct arg args;
-    args.a = 1;
-    args.b = 2;
-    create_thread(&ta, 0, &no_race_for_state, &args);
-    create_thread(&tb, 0, &no_race_for_state, &args);
+    struct arg args = {.a = 1, .b = 2};
+    struct thread *ta = create_thread(&no_race_for_state, &args, 0, 0);
+    struct thread *tb = create_thread(&no_race_for_state, &args, 0, 0);
     yield_thread();
     join_thread(ta->id, 0, 0);
     join_thread(tb->id, 0, 0);

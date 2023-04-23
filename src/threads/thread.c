@@ -30,31 +30,18 @@ void schedule_next_thread()
     }
 }
 
-void create_thread(
-    struct thread **returned_thread, struct thread_attributes *attributes,
-    thread_function_t thread_function, void *thread_function_arg
-)
+struct thread *
+create_thread(thread_function_t function, void *argument, uint32 result_size, uint32 stack_size)
 {
     struct thread *thread = get_unused_thread();
     if (thread == 0) {
-        return;
+        return 0;
     }
 
-    uint32 result_size = 0;
-    uint32 stack_size = PGSIZE;
-    if (attributes != 0) {
-        struct thread_attributes given_attributes = *attributes;
-        if (given_attributes.result_size != 0) {
-            result_size = given_attributes.result_size;
-        }
-        if (given_attributes.stack_size != 0) {
-            stack_size = given_attributes.stack_size;
-        }
-    }
-
+    stack_size = stack_size > 0 ? stack_size : PGSIZE;
     void *stack = malloc(stack_size);
     if (stack == 0) {
-        return;
+        return 0;
     }
     uint64 stack_pointer = (uint64)stack + stack_size;
 
@@ -64,12 +51,12 @@ void create_thread(
 
     thread->context = context;
     thread->state = RUNNABLE;
-    thread->function = thread_function;
-    thread->argument = thread_function_arg;
+    thread->function = function;
+    thread->argument = argument;
     thread->result = 0;
     thread->result_size = result_size;
 
-    *returned_thread = thread;
+    return thread;
 }
 
 void free_thread(struct thread *thread)
