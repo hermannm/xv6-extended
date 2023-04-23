@@ -9,34 +9,6 @@
 
 static uint8 current_thread_id = MAIN_THREAD_ID;
 
-void schedule_next_thread()
-{
-    struct thread *current_thread = get_thread(current_thread_id);
-    struct thread *next_thread = get_next_active_thread(current_thread_id);
-
-    int has_next_thread = next_thread != 0;
-
-    if (has_next_thread && next_thread->id != current_thread_id) {
-        current_thread_id = next_thread->id;
-        tswtch(&current_thread->context, &next_thread->context);
-    }
-
-    if (!has_next_thread && current_thread->state == THREAD_EXITED) {
-        struct thread *main_thread = get_thread(MAIN_THREAD_ID);
-
-        int result;
-        int error = get_thread_result(main_thread, &result, sizeof(int));
-
-        free_thread_list();
-
-        if (error == 0) {
-            exit(result);
-        } else {
-            exit(1);
-        }
-    }
-}
-
 struct thread *
 create_thread(thread_function_t function, void *argument, uint32 result_size, uint32 stack_size)
 {
@@ -84,24 +56,32 @@ void free_thread(struct thread *thread)
     thread->result_size = 0;
 }
 
-void run_current_thread()
-{
-    struct thread *current_thread = get_thread(current_thread_id);
-    if (current_thread == 0) {
-        return;
-    }
-
-    void *result = current_thread->function(current_thread->argument);
-
-    current_thread->result = result;
-    current_thread->state = THREAD_EXITED;
-
-    schedule_next_thread();
-}
-
 void yield_thread()
 {
-    schedule_next_thread();
+    struct thread *current_thread = get_thread(current_thread_id);
+    struct thread *next_thread = get_next_active_thread(current_thread_id);
+
+    int has_next_thread = next_thread != 0;
+
+    if (has_next_thread && next_thread->id != current_thread_id) {
+        current_thread_id = next_thread->id;
+        tswtch(&current_thread->context, &next_thread->context);
+    }
+
+    if (!has_next_thread && current_thread->state == THREAD_EXITED) {
+        struct thread *main_thread = get_thread(MAIN_THREAD_ID);
+
+        int result;
+        int error = get_thread_result(main_thread, &result, sizeof(int));
+
+        free_thread_list();
+
+        if (error == 0) {
+            exit(result);
+        } else {
+            exit(1);
+        }
+    }
 }
 
 int join_thread(uint8 id_of_thread_to_join, void *result_buffer, uint32 result_size)
@@ -141,4 +121,19 @@ int get_thread_result(struct thread *thread, void *result_buffer, uint32 result_
 uint8 get_current_thread_id()
 {
     return current_thread_id;
+}
+
+void run_current_thread()
+{
+    struct thread *current_thread = get_thread(current_thread_id);
+    if (current_thread == 0) {
+        return;
+    }
+
+    void *result = current_thread->function(current_thread->argument);
+
+    current_thread->result = result;
+    current_thread->state = THREAD_EXITED;
+
+    yield_thread();
 }

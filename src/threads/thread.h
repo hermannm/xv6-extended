@@ -31,14 +31,6 @@ struct thread {
 };
 
 /**
- * Finds the next active thread after the current thread, and switches to it.
- * If there are no other active threads, continues on the current thread.
- * If the current thread has also exited, retrieves the result of the main thread, frees all threads
- * and exits the program.
- */
-void schedule_next_thread(void);
-
-/**
  * Initializes a new thread, and marks it as active.
  *
  * @param function Pointer to function to run in the thread (see thread_function_t docstring for
@@ -62,13 +54,10 @@ create_thread(thread_function_t function, void *argument, uint32 result_size, ui
 void free_thread(struct thread *thread);
 
 /**
- * Gets the current thread, and runs its function. Once it completes, saves its result in the
- * thread struct, marks it as exited, and calls schedule_next_thread().
- */
-void run_current_thread();
-
-/**
- * Calls the scheduler to allow other threads to run.
+ * Finds the next active thread after the current thread, and switches to it.
+ * If there are no other active threads, continues on the current thread.
+ * If the current thread has also exited, retrieves the result of the main thread, frees all threads
+ * and exits the program.
  */
 void yield_thread();
 
@@ -91,5 +80,11 @@ int get_thread_result(struct thread *thread, void *result_buffer, uint32 result_
  * Returns the ID of the currently running thread.
  */
 uint8 get_current_thread_id();
+
+/**
+ * Gets the current thread, and runs its function. Once it completes, saves its result in the
+ * thread struct, marks it as exited, and yields the thread.
+ */
+void run_current_thread();
 
 #endif // THREAD_H
