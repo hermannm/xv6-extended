@@ -13,8 +13,6 @@ void _main(int argc, char *argv[])
         exit(1);
     }
 
-    main_thread->wait_count++;
-
     struct thread_context empty_context = {0};
     tswtch(&empty_context, &main_thread->context);
 }

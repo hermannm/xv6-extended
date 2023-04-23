@@ -17,7 +17,6 @@ void schedule_next_thread()
     int has_next_thread = next_thread != 0;
 
     if (has_next_thread && next_thread->id != current_thread_id) {
-        next_thread->state = THREAD_RUNNING;
         current_thread_id = next_thread->id;
         tswtch(&current_thread->context, &next_thread->context);
     }
@@ -60,7 +59,6 @@ create_thread(thread_function_t function, void *argument, uint32 result_size, ui
 
     thread->context = context;
     thread->state = THREAD_RUNNABLE;
-    thread->wait_count = 0;
     thread->function = function;
     thread->argument = argument;
     thread->result = 0;
@@ -80,7 +78,6 @@ void free_thread(struct thread *thread)
 
     thread->context = (struct thread_context){0};
     thread->state = THREAD_UNUSED;
-    thread->wait_count = 0;
     thread->function = 0;
     thread->argument = 0;
     thread->result = 0;
@@ -104,8 +101,6 @@ void run_current_thread()
 
 void yield_thread()
 {
-    struct thread *current_thread = get_thread(current_thread_id);
-    current_thread->state = THREAD_RUNNABLE;
     schedule_next_thread();
 }
 
@@ -115,8 +110,6 @@ int join_thread(uint8 id_of_thread_to_join, void *result_buffer, uint32 result_s
     if (thread_to_join == 0) {
         return -1;
     }
-
-    thread_to_join->wait_count++;
 
     while (thread_to_join->state != THREAD_EXITED) {
         yield_thread();
@@ -128,8 +121,6 @@ int join_thread(uint8 id_of_thread_to_join, void *result_buffer, uint32 result_s
             return error;
         }
     }
-
-    thread_to_join->wait_count--;
 
     return 0;
 }

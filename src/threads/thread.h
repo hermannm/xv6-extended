@@ -25,12 +25,6 @@ struct thread {
     struct thread_context context;
     enum thread_state state;
 
-    /**
-     * The number of other threads waiting for this thread to exit. While more than 0, the thread
-     * will not be freed, so that its result can be retrieved by waiting threads.
-     */
-    int wait_count;
-
     thread_function_t function;
     void *argument;
     void *result;
@@ -40,8 +34,8 @@ struct thread {
 /**
  * Finds the next runnable thread after the current thread, and switches to it.
  * If there are no other runnable threads, continues on the current thread.
- * If the current thread has also exited, retrieves the result of the main thread and exits the
- * program.
+ * If the current thread has also exited, retrieves the result of the main thread, frees all threads
+ * and exits the program.
  */
 void schedule_next_thread(void);
 
@@ -56,16 +50,15 @@ void schedule_next_thread(void);
  * returns nothing.
  * @param stack_size The size of the stack to allocate for the thread. Pass 0 to default to the page
  * size.
- * @return Pointer to the new thread. Once the thread exits, and there are no other threads waiting
- * on it, it will be automatically freed.
+ * @return Pointer to the new thread. Should be freed with free_thread() after joining, otherwise
+ * it will remain occupied until the end of the program.
  */
 struct thread *
 create_thread(thread_function_t function, void *argument, uint32 result_size, uint32 stack_size);
 
 /**
  * Frees the allocations on the thread, sets all its fields to 0 (except the thread ID), and marks
- * it as unused. Called automatically once the thread exits and there are no other threads waiting
- * on it, so should not be called separately.
+ * it as unused.
  */
 void free_thread(struct thread *thread);
 
