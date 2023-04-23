@@ -28,7 +28,7 @@ spring 2023.
     - `sys_vatopa` provides a syscall for translating a virtual address to a physical address
     - `vatopa` provides a user-space command-line utility that uses the `vatopa` syscall
   - `threads` contains a user-space multithreading library
-    - `thread` contains the API for threads (creation, scheduling, yielding and joining)
+    - `thread` contains the API for threads (creation, yielding and joining)
     - `thread_list` provides functions for tracking and retrieving threads
     - `main_thread` contains a wrapper around the entrypoint of programs, to set up the main thread
   - `utils` contains general-use utility functions and data types
