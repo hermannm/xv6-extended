@@ -14,11 +14,15 @@ void schedule_next_thread()
     struct thread *current_thread = get_thread(current_thread_id);
     struct thread *next_thread = get_next_runnable_thread(current_thread_id);
 
-    if (next_thread != 0) {
+    int has_next_thread = next_thread != 0;
+
+    if (has_next_thread && next_thread->id != current_thread_id) {
         next_thread->state = THREAD_RUNNING;
         current_thread_id = next_thread->id;
         tswtch(&current_thread->context, &next_thread->context);
-    } else if (current_thread->state == THREAD_EXITED) {
+    }
+
+    if (!has_next_thread && current_thread->state == THREAD_EXITED) {
         struct thread *main_thread = get_thread(MAIN_THREAD_ID);
 
         int result;
