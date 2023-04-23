@@ -31,12 +31,12 @@ struct thread *get_unused_thread()
 {
     for (struct thread *thread = thread_list; thread < &thread_list[THREAD_LIST_CAPACITY]; thread++)
     {
-        if (thread->state == EXITED && thread->id != MAIN_THREAD_ID) {
+        if (thread->state == THREAD_EXITED && thread->id != MAIN_THREAD_ID) {
             free_thread(thread);
             return thread;
         }
 
-        if (thread->state == UNUSED) {
+        if (thread->state == THREAD_UNUSED) {
             return thread;
         }
     }
@@ -53,7 +53,7 @@ struct thread *get_next_runnable_thread(uint8 current_thread_id)
         }
 
         struct thread *thread = &thread_list[index];
-        if (thread->state == RUNNABLE) {
+        if (thread->state == THREAD_RUNNABLE) {
             return thread;
         }
 

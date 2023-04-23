@@ -15,10 +15,10 @@ void schedule_next_thread()
     struct thread *next_thread = get_next_runnable_thread(current_thread_id);
 
     if (next_thread != 0) {
-        next_thread->state = RUNNING;
+        next_thread->state = THREAD_RUNNING;
         current_thread_id = next_thread->id;
         tswtch(&current_thread->context, &next_thread->context);
-    } else if (current_thread->state == EXITED) {
+    } else if (current_thread->state == THREAD_EXITED) {
         struct thread *main_thread = get_thread(MAIN_THREAD_ID);
 
         int result = 1;
@@ -50,7 +50,7 @@ create_thread(thread_function_t function, void *argument, uint32 result_size, ui
     context.ra = (uint64)run_current_thread;
 
     thread->context = context;
-    thread->state = RUNNABLE;
+    thread->state = THREAD_RUNNABLE;
     thread->function = function;
     thread->argument = argument;
     thread->result = 0;
@@ -69,7 +69,7 @@ void free_thread(struct thread *thread)
     }
 
     thread->context = (struct thread_context){0};
-    thread->state = UNUSED;
+    thread->state = THREAD_UNUSED;
     thread->function = 0;
     thread->argument = 0;
     thread->result = 0;
@@ -86,7 +86,7 @@ void run_current_thread()
     void *result = current_thread->function(current_thread->argument);
 
     current_thread->result = result;
-    current_thread->state = EXITED;
+    current_thread->state = THREAD_EXITED;
 
     schedule_next_thread();
 }
@@ -109,7 +109,7 @@ int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
         return -1;
     }
 
-    while (thread_to_join->state != EXITED) {
+    while (thread_to_join->state != THREAD_EXITED) {
         yield_thread();
     }
 
@@ -127,7 +127,7 @@ int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
 void yield_thread()
 {
     struct thread *current_thread = get_thread(current_thread_id);
-    current_thread->state = RUNNABLE;
+    current_thread->state = THREAD_RUNNABLE;
     schedule_next_thread();
 }
 

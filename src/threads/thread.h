@@ -5,13 +5,10 @@
 #include "../../lib/user/user.h"
 
 enum thread_state {
-    UNUSED,
-    USED,
-    SLEEPING,
-    RUNNABLE,
-    RUNNING,
-    ZOMBIE,
-    EXITED,
+    THREAD_UNUSED,
+    THREAD_RUNNABLE,
+    THREAD_RUNNING,
+    THREAD_EXITED,
 };
 
 /**
