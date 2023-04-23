@@ -12,21 +12,23 @@ enum thread_state {
 };
 
 /**
- * Pointer to a function that a thread should run. Takes a void pointer argument and returns a
- * void pointer, the actual type of which will depend on the thread function.
+ * Pointer to a function to run in a thread. Takes a void pointer argument and returns a void
+ * pointer, the actual type of which will depend on the thread function.
  */
 typedef void *(*thread_function_t)(void *);
 
 /**
- * The thread struct will contain all additional information we require
- * to handle for the threads. You might need to store more information
- * to implement parts of the tasks. Feel free to extend the struct
- * accordingly.
+ * A thread runs a function concurrently with other threads in a process.
  */
 struct thread {
     uint8 id;
     struct thread_context context;
     enum thread_state state;
+
+    /**
+     * The number of other threads waiting for this thread to exit. While more than 0, the thread
+     * will not be freed, so that its result can be retrieved by waiting threads.
+     */
     int wait_count;
 
     thread_function_t function;
@@ -36,13 +38,15 @@ struct thread {
 };
 
 /**
- * The thread scheduler, which will directly switch to the next thread.
+ * Finds the next runnable thread after the current thread, and switches to it.
+ * If there are no other runnable threads, continues on the current thread.
+ * If the current thread has also exited, retrieves the result of the main thread and exits the
+ * program.
  */
 void schedule_next_thread(void);
 
 /**
- * Allocates and initializes a new thread, and stores the newly allocated thread into the thread
- * pointer. The created thread will be immediately runnable, no further steps required.
+ * Initializes a new thread, and marks it as runnable.
  *
  * @param function Pointer to function to run in the thread (see thread_function_t docstring for
  * the expected function signature).
@@ -52,32 +56,45 @@ void schedule_next_thread(void);
  * returns nothing.
  * @param stack_size The size of the stack to allocate for the thread. Pass 0 to default to the page
  * size.
+ * @return Pointer to the new thread. Once the thread exits, and there are no other threads waiting
+ * on it, it will be automatically freed.
  */
 struct thread *
 create_thread(thread_function_t function, void *argument, uint32 result_size, uint32 stack_size);
 
+/**
+ * Frees the allocations on the thread, sets all its fields to 0 (except the thread ID), and marks
+ * it as unused. Called automatically once the thread exits and there are no other threads waiting
+ * on it, so should not be called separately.
+ */
 void free_thread(struct thread *thread);
 
+/**
+ * Gets the current thread, and runs its function. Once it completes, saves its result in the
+ * thread struct, marks it as exited, and calls schedule_next_thread().
+ */
 void run_current_thread();
 
-void get_thread_result(struct thread *thread, void *result_buffer, uint32 result_size);
-
 /**
- * Joins the calling thread with the thread with thread id tid. (This means wait
- * for thread tid to finish execution before returning). After returning the result_buffer
- * will contain the return value of the function.
- * @param thread_id The thread id of the thread to join
- * @param result_buffer If not null and the thread has a return value, this should contain the
- * return value
- * @param result_size This denotes the size of the return value in bytes
- * @return
- */
-int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size);
-
-/**
- * Yields to another thread.
+ * Sets the current thread from running to runnable, then calls the scheduler to allow other threads
+ * to run.
  */
 void yield_thread();
+
+/**
+ * Yields to the thread with the given ID until it exits.
+ * If the given result buffer is not 0, copies the joined thread's result into the buffer.
+ * Returns 0 on success, or -1 if joining failed, either due to invalid thread ID or invalid result
+ * buffer.
+ */
+int join_thread(uint8 id_of_thread_to_join, void *result_buffer, uint32 result_size);
+
+/**
+ * Copies the result of the thread's function into the given result buffer.
+ * Returns 0 on success, or -1 if there either was no result or the provided result size did not
+ * match the thread's result.
+ */
+int get_thread_result(struct thread *thread, void *result_buffer, uint32 result_size);
 
 /**
  * Returns the ID of the currently running thread.

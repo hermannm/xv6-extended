@@ -19,11 +19,11 @@ void _main(int argc, char *argv[])
     tswtch(&empty_context, &main_thread->context);
 }
 
-void *main_thread_function(void *untyped_arg)
+void *main_thread_function(void *wrapped_args)
 {
     extern int main(int argc, char *argv[]);
 
-    struct main_thread_arg *arg = (struct main_thread_arg *)untyped_arg;
+    struct main_thread_arg *arg = (struct main_thread_arg *)wrapped_args;
 
     int *result_buffer = malloc(sizeof(int));
     if (result_buffer == 0) {

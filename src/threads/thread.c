@@ -51,6 +51,7 @@ create_thread(thread_function_t function, void *argument, uint32 result_size, ui
     if (stack == 0) {
         return 0;
     }
+    // Adds the stack size to the pointer, since the stack "grows downward"
     uint64 stack_pointer = (uint64)stack + stack_size;
 
     struct thread_context context = {0};
@@ -101,22 +102,16 @@ void run_current_thread()
     schedule_next_thread();
 }
 
-int get_thread_result(struct thread *thread, void *result_buffer, uint32 result_size)
+void yield_thread()
 {
-    void *result = thread->result;
-
-    if (result == 0 || result_buffer == 0 || result_size != thread->result_size) {
-        return -1;
-    }
-
-    memmove(result_buffer, thread->result, result_size);
-
-    return 0;
+    struct thread *current_thread = get_thread(current_thread_id);
+    current_thread->state = THREAD_RUNNABLE;
+    schedule_next_thread();
 }
 
-int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
+int join_thread(uint8 id_of_thread_to_join, void *result_buffer, uint32 result_size)
 {
-    struct thread *thread_to_join = get_thread(thread_id);
+    struct thread *thread_to_join = get_thread(id_of_thread_to_join);
     if (thread_to_join == 0) {
         return -1;
     }
@@ -139,11 +134,17 @@ int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
     return 0;
 }
 
-void yield_thread()
+int get_thread_result(struct thread *thread, void *result_buffer, uint32 result_size)
 {
-    struct thread *current_thread = get_thread(current_thread_id);
-    current_thread->state = THREAD_RUNNABLE;
-    schedule_next_thread();
+    void *result = thread->result;
+
+    if (result == 0 || result_buffer == 0 || result_size != thread->result_size) {
+        return -1;
+    }
+
+    memmove(result_buffer, thread->result, result_size);
+
+    return 0;
 }
 
 uint8 get_current_thread_id()
