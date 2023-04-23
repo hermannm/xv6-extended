@@ -51,6 +51,7 @@ create_thread(thread_function_t function, void *argument, uint32 result_size, ui
 
     thread->context = context;
     thread->state = THREAD_RUNNABLE;
+    thread->wait_count = 0;
     thread->function = function;
     thread->argument = argument;
     thread->result = 0;
@@ -70,6 +71,7 @@ void free_thread(struct thread *thread)
 
     thread->context = (struct thread_context){0};
     thread->state = THREAD_UNUSED;
+    thread->wait_count = 0;
     thread->function = 0;
     thread->argument = 0;
     thread->result = 0;
@@ -109,6 +111,8 @@ int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
         return -1;
     }
 
+    thread_to_join->wait_count++;
+
     while (thread_to_join->state != THREAD_EXITED) {
         yield_thread();
     }
@@ -120,6 +124,8 @@ int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
 
         memmove(result_buffer, thread_to_join->result, result_size);
     }
+
+    thread_to_join->wait_count--;
 
     return 0;
 }

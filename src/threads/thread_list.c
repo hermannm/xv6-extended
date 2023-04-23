@@ -31,7 +31,7 @@ struct thread *get_unused_thread()
 {
     for (struct thread *thread = thread_list; thread < &thread_list[THREAD_LIST_CAPACITY]; thread++)
     {
-        if (thread->state == THREAD_EXITED && thread->id != MAIN_THREAD_ID) {
+        if (thread->state == THREAD_EXITED && thread->wait_count == 0) {
             free_thread(thread);
             return thread;
         }

@@ -27,6 +27,7 @@ struct thread {
     uint8 id;
     struct thread_context context;
     enum thread_state state;
+    int wait_count;
 
     thread_function_t function;
     void *argument;
