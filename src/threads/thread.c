@@ -21,12 +21,16 @@ void schedule_next_thread()
     } else if (current_thread->state == THREAD_EXITED) {
         struct thread *main_thread = get_thread(MAIN_THREAD_ID);
 
-        int result = 1;
-        get_thread_result(main_thread, &result, sizeof(int));
+        int result;
+        int error = get_thread_result(main_thread, &result, sizeof(int));
 
         free_thread(main_thread);
 
-        exit(result);
+        if (error == 0) {
+            exit(result);
+        } else {
+            exit(1);
+        }
     }
 }
 
@@ -93,15 +97,17 @@ void run_current_thread()
     schedule_next_thread();
 }
 
-void get_thread_result(struct thread *thread, void *result_buffer, uint32 result_size)
+int get_thread_result(struct thread *thread, void *result_buffer, uint32 result_size)
 {
-    if (result_size != thread->result_size) {
-        return;
+    void *result = thread->result;
+
+    if (result == 0 || result_buffer == 0 || result_size != thread->result_size) {
+        return -1;
     }
 
     memmove(result_buffer, thread->result, result_size);
 
-    return;
+    return 0;
 }
 
 int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
@@ -118,11 +124,10 @@ int join_thread(uint8 thread_id, void *result_buffer, uint32 result_size)
     }
 
     if (result_buffer != 0 && result_size != 0) {
-        if (thread_to_join->result_size != result_size) {
-            return -1;
+        int error = get_thread_result(thread_to_join, result_buffer, result_size);
+        if (error != 0) {
+            return error;
         }
-
-        memmove(result_buffer, thread_to_join->result, result_size);
     }
 
     thread_to_join->wait_count--;
