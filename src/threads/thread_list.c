@@ -47,7 +47,7 @@ struct thread *get_unused_thread()
     return 0;
 }
 
-struct thread *get_next_runnable_thread(uint8 current_thread_id)
+struct thread *get_next_active_thread(uint8 current_thread_id)
 {
     uint8 index = current_thread_id + 1;
     while (1) {
@@ -56,7 +56,7 @@ struct thread *get_next_runnable_thread(uint8 current_thread_id)
         }
 
         struct thread *thread = &thread_list[index];
-        if (thread->state == THREAD_RUNNABLE) {
+        if (thread->state == THREAD_ACTIVE) {
             return thread;
         }
 

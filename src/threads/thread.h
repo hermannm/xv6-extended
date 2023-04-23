@@ -6,8 +6,7 @@
 
 enum thread_state {
     THREAD_UNUSED,
-    THREAD_RUNNABLE,
-    THREAD_RUNNING,
+    THREAD_ACTIVE,
     THREAD_EXITED,
 };
 
@@ -32,15 +31,15 @@ struct thread {
 };
 
 /**
- * Finds the next runnable thread after the current thread, and switches to it.
- * If there are no other runnable threads, continues on the current thread.
+ * Finds the next active thread after the current thread, and switches to it.
+ * If there are no other active threads, continues on the current thread.
  * If the current thread has also exited, retrieves the result of the main thread, frees all threads
  * and exits the program.
  */
 void schedule_next_thread(void);
 
 /**
- * Initializes a new thread, and marks it as runnable.
+ * Initializes a new thread, and marks it as active.
  *
  * @param function Pointer to function to run in the thread (see thread_function_t docstring for
  * the expected function signature).
@@ -69,8 +68,7 @@ void free_thread(struct thread *thread);
 void run_current_thread();
 
 /**
- * Sets the current thread from running to runnable, then calls the scheduler to allow other threads
- * to run.
+ * Calls the scheduler to allow other threads to run.
  */
 void yield_thread();
 

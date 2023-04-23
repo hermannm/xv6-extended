@@ -12,7 +12,7 @@ static uint8 current_thread_id = MAIN_THREAD_ID;
 void schedule_next_thread()
 {
     struct thread *current_thread = get_thread(current_thread_id);
-    struct thread *next_thread = get_next_runnable_thread(current_thread_id);
+    struct thread *next_thread = get_next_active_thread(current_thread_id);
 
     int has_next_thread = next_thread != 0;
 
@@ -58,7 +58,7 @@ create_thread(thread_function_t function, void *argument, uint32 result_size, ui
     context.ra = (uint64)run_current_thread;
 
     thread->context = context;
-    thread->state = THREAD_RUNNABLE;
+    thread->state = THREAD_ACTIVE;
     thread->function = function;
     thread->argument = argument;
     thread->result = 0;

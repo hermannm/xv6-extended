@@ -35,9 +35,9 @@ struct thread *get_thread(uint8 thread_id);
 struct thread *get_unused_thread();
 
 /**
- * Finds a runnable thread next in line after the given thread ID.
- * Returns 0 if there are no runnable threads, including the current thread.
+ * Finds an active thread next in line after the given thread ID.
+ * Returns 0 if there are no active threads, including the current thread.
  */
-struct thread *get_next_runnable_thread(uint8 current_thread_id);
+struct thread *get_next_active_thread(uint8 current_thread_id);
 
 #endif // THREAD_LIST_H
