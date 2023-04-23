@@ -6,6 +6,12 @@
 #include "thread.h"
 
 /**
+ * The maximum number of threads that a process can have at a time.
+ * One will always be occupied by the main thread.
+ */
+#define MAX_NUMBER_OF_THREADS 64
+
+/**
  * Initializes the global thread list with thread IDs.
  * Must be called before any other thread functions.
  */

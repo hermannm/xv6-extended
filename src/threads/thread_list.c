@@ -6,13 +6,11 @@
 
 #include "thread_list.h"
 
-#define THREAD_LIST_CAPACITY 16
-
-static struct thread thread_list[THREAD_LIST_CAPACITY] = {0};
+static struct thread thread_list[MAX_NUMBER_OF_THREADS] = {0};
 
 void initialize_thread_list()
 {
-    for (uint8 thread_id = 0; thread_id < THREAD_LIST_CAPACITY; thread_id++) {
+    for (uint8 thread_id = 0; thread_id < MAX_NUMBER_OF_THREADS; thread_id++) {
         struct thread *thread = &thread_list[thread_id];
         thread->id = thread_id;
     }
@@ -20,7 +18,8 @@ void initialize_thread_list()
 
 void free_thread_list()
 {
-    for (struct thread *thread = thread_list; thread < &thread_list[THREAD_LIST_CAPACITY]; thread++)
+    for (struct thread *thread = thread_list; thread < &thread_list[MAX_NUMBER_OF_THREADS];
+         thread++)
     {
         free_thread(thread);
     }
@@ -28,7 +27,7 @@ void free_thread_list()
 
 struct thread *get_thread(uint8 thread_id)
 {
-    if (thread_id >= THREAD_LIST_CAPACITY) {
+    if (thread_id >= MAX_NUMBER_OF_THREADS) {
         return 0;
     }
 
@@ -37,7 +36,8 @@ struct thread *get_thread(uint8 thread_id)
 
 struct thread *get_unused_thread()
 {
-    for (struct thread *thread = thread_list; thread < &thread_list[THREAD_LIST_CAPACITY]; thread++)
+    for (struct thread *thread = thread_list; thread < &thread_list[MAX_NUMBER_OF_THREADS];
+         thread++)
     {
         if (thread->state == THREAD_UNUSED) {
             return thread;
@@ -51,7 +51,7 @@ struct thread *get_next_runnable_thread(uint8 current_thread_id)
 {
     uint8 index = current_thread_id + 1;
     while (1) {
-        if (index >= THREAD_LIST_CAPACITY) {
+        if (index >= MAX_NUMBER_OF_THREADS) {
             index = 0;
         }
 
